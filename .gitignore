@@ -39,3 +39,29 @@ coverage/
 docs/
 App/docs/
 **/docs/
+
+# AI agents (ignore all agent tooling except Kiro)
+.cursor/
+.cursorrules
+.cursorignore
+.windsurf/
+.windsurfrules
+.claude/
+CLAUDE.md
+.aider*
+.github/copilot-instructions.md
+.codeium/
+.continue/
+.cline/
+.clinerules
+.roo/
+.roomodes
+.gemini/
+GEMINI.md
+.augment/
+.aws/amazonq/
+.amazonq/
+
+# Keep Kiro
+!.kiro/
+!.kiro/**
