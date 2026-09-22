@@ -20,7 +20,7 @@ points, implementation order, and the final human-website flow.
 | 02 | Human Course Catalogue | Implemented | Course model + synthetic data, repository/service/controller/routes, `GET /api/courses`, `GET /api/courses/:courseId`, catalogue UI + minimal details placeholder |
 | 03 | Human Course Details | Implemented | Complete course details page (frontend-only; reuses Course capability) — see [`course-details.md`](./course-details.md) |
 | 04 | Human Course Comparison | Implemented | Client-side side-by-side comparison (frontend-only; shared `useComparison` interface) — see [`course-comparison.md`](./course-comparison.md) |
-| 05 | Human Course Enquiry | Specified | First WRITE: enquiry domain/service/repository + `POST /api/enquiries` + enquiry form/confirmation |
+| 05 | Human Course Enquiry | Implemented | First WRITE: enquiry domain/service/repository + `POST /api/enquiries` + enquiry form/confirmation — see [`course-enquiry.md`](./course-enquiry.md) |
 | 06 | Human Website Completion / Integration | Planned | Cross-feature wiring, navigation, alias/route decisions, end-to-end journey |
 | 07 | Human Website Testing & Quality | Planned | Cross-feature integration/e2e tests, accessibility & responsive validation, quality gates |
 
@@ -74,14 +74,13 @@ client; `server/src/domain/course.ts` on the server). Any change is a coordinate
 ### Spec 03 → Spec 05 (enquiry entry point)
 - Spec 03's **Enquire** action navigates to the enquiry entry point carrying the
   course `id`. The **concrete enquiry route/params are owned and finalised by
-  Spec 05** (e.g. `/lifelong-learning/courses/:courseId/enquire`). Spec 03 links to
-  it; until agreed, Spec 03 points at the planned route.
+  Spec 05**.
 - **As implemented (Spec 03):** the action links to
   `/lifelong-learning/courses/:courseId/enquire`, encoded in exactly one place —
-  `enquiryHref` in `client/src/components/courses/details/routes.ts`. If Spec 05
-  finalises a different target, that single helper is the only change required.
-  Until Spec 05 lands the route does not exist, so following the link reaches the
-  app's not-found page; nothing else is affected.
+  `enquiryHref` in `client/src/components/courses/details/routes.ts`.
+- **Settled (Spec 05):** that is the route Spec 05 ships, so `enquiryHref` needed
+  no change and the seam is now live end to end. The page replaces the Spec 03
+  placeholder at the same path.
 
 ### Spec 04 → Spec 03 (comparison interface, and details navigation)
 - Spec 04 **produces** a small shared comparison interface — `useComparison()` /
@@ -121,10 +120,23 @@ client; `server/src/domain/course.ts` on the server). Any change is a coordinate
 ### Spec 05 produced contracts (for integration / other specs)
 - **`POST /api/enquiries`** — request `{ name, email, phone?, courseId,
   enquiryType, message }`; success **201** `{ data: { reference, courseId,
-  courseTitle?, status, createdAt } }`; errors use the Spec 01 envelope.
+  courseTitle, status, createdAt } }`; errors use the Spec 01 envelope.
 - **Enquiry-type enum** — `general | course_content | fees_funding | admissions |
-  other` (server-authoritative; client derives).
-- **Enquiry entry route/params** — the concrete navigation target for Spec 03/04.
+  other` (server-authoritative in `server/src/domain/enquiry.ts`; the client
+  mirrors it in `client/src/lib/enquiries/types.ts` with display labels).
+- **Enquiry entry route/params** — `/lifelong-learning/courses/:courseId/enquire`.
+- **As implemented (Spec 05):** the success payload always carries `courseTitle`
+  (captured from the verified course at submission time, so the confirmation
+  survives later catalogue edits) and deliberately carries **none** of the
+  submitted personal fields. `404 NOT_FOUND` covers both an unknown course and one
+  that is not publicly listable — the same rule `GET /api/courses/:courseId`
+  applies. Enquiry references are `ENQ-<year>-<6-digit sequence>` from an
+  in-memory counter, so they restart at `000001` when the server restarts.
+- **Error-handler addition (Spec 05, shared):** body-parser failures are now
+  mapped at the Spec 01 boundary — an oversized body returns **413** and malformed
+  JSON returns **400**, both `VALIDATION_ERROR`, instead of a generic 500. This is
+  additive infrastructure that applies to any future WRITE endpoint; before Spec 05
+  no route accepted a body.
 
 ### Spec 01 infrastructure (reused by 03, 04, 05)
 - Server: `validate` middleware, `ApiError` taxonomy + error handler, async
@@ -196,12 +208,15 @@ Shared Course model/API (Spec 01/02)  ──►  Agree useComparison + enquiry r
    real `useComparison()` value as `comparison`, so details uses the same
    add/remove behavior and limit rules as the catalogue card and comparison view.
 4. **Details → Enquire** — Spec 03 links to Spec 05's enquiry entry route.
-   *Remaining work:* confirm `enquiryHref` matches the route Spec 05 ships.
+   **Wired:** Spec 05 shipped the route `enquiryHref` already pointed at, so no
+   change was needed on either side.
 5. **Comparison view → Details / Enquire / Back** — Spec 04 links to Spec 03 route,
    Spec 05 entry route, and the catalogue. **Wired**, with the catalogue and
-   enquiry targets imported from `details/routes.ts` rather than restated, so
-   the enquiry entry point stays changeable in one edit when Spec 05 lands.
+   enquiry targets imported from `details/routes.ts` rather than restated; Spec 05
+   landing on that exact route means the link now resolves.
 6. **Enquiry form → `POST /api/enquiries` → Confirmation** — Spec 05 end to end.
+   **Wired**, and covered by an integration test that runs the real Express app
+   in-process and drives the real form against it.
 7. **ComparisonProvider mount** — **done**: mounted in `app/layout.tsx` (Spec 04,
    FR-407), so comparison state is shared across catalogue/details/comparison.
 

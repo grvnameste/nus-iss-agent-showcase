@@ -11,7 +11,7 @@ in `.kiro/steering/`.
 - **Security & agent safety** → `.kiro/steering/security.md`
 - **Testing approach & verification gates** → `.kiro/steering/testing.md`
 
-## Status — Specifications 01 (Foundation), 02 (Course Catalogue), 03 (Course Details) and 04 (Course Comparison) implemented
+## Status — Specifications 01 (Foundation), 02 (Course Catalogue), 03 (Course Details), 04 (Course Comparison) and 05 (Course Enquiry) implemented
 
 The Course Catalogue (Specification 02) is implemented and documented in
 [`course-catalogue.md`](./course-catalogue.md): synthetic course data, the
@@ -36,8 +36,21 @@ enquiry entry point. It is **frontend-only** — a React context over the
 Specification 02 Course model, with no backend code, no endpoint, and no
 database. Nothing is ranked, scored, or recommended.
 
-> The Course Catalogue, Course Details and Course Comparison are **human-facing
-> only**. AI-agent / WebMCP / MCP functionality is **not** implemented; the
+Course Enquiry (Specification 05) is implemented and documented in
+[`course-enquiry.md`](./course-enquiry.md): the human website's **first WRITE
+capability**. A learner enquires about a course at
+`/lifelong-learning/courses/:courseId/enquire`, the submission is independently
+re-validated on the backend, stored in a synthetic in-memory repository, and
+confirmed with a reference number. It adds the full backend stack for a new
+domain — Enquiry model/schema → repository → service → controller →
+`POST /api/enquiries` — reusing the Specification 01 validation boundary, error
+envelope, logger and security middleware, and the Specification 02 Course Service
+to verify the referenced course. Nothing is emailed, integrated, or sent
+anywhere; enquiries live only in the running server's memory.
+
+> The Course Catalogue, Course Details, Course Comparison and Course Enquiry are
+> **human-facing only**. AI-agent / WebMCP / MCP functionality is **not**
+> implemented — including any automated or agent-driven enquiry submission; the
 > Agent-Ready / WebMCP transformation remains a **future phase**.
 
 ### Foundation (Specification 01)
@@ -51,7 +64,8 @@ The repository also contains the **implemented foundation** (Specification 01):
   Exposes `GET /api/health`. Layered as Routes → Controllers → Services →
   Repositories → Data, with a centralised, sanitised error handler and a reusable
   Zod validation boundary. The Controllers/Services/Repositories/Data layers are
-  established as placeholders for later specifications.
+  established as placeholders for later specifications, and are now populated by
+  the Course (Spec 02) and Enquiry (Spec 05) capabilities.
 - **Frontend:** Next.js (App Router) + React + Tailwind — an original website
   shell (Header, Navigation, Footer, page container) with client-side navigation
   across Home, Education, Admissions, Lifelong Learning, Industry, and About, plus
@@ -62,11 +76,10 @@ Repositories → Data so future agent tools can reuse the same business
 capabilities. **WebMCP is a future capability and is not implemented in
 Specification 01** — there are no agent tools, no agent, and no AI integration.
 
-The **enquiry** workflow is not implemented yet; it is introduced by a later
-specification. The details page already carries the guarded seams for both
-comparison and enquiry — see
-[`phase-1-integration.md`](./phase-1-integration.md). All data is synthetic; there is no
-Republic Polytechnic (or any) production integration.
+The details page's guarded seams for both comparison and enquiry are now wired to
+the real features — see [`phase-1-integration.md`](./phase-1-integration.md).
+Cross-feature integration and quality gates (Specs 06 and 07) remain. All data is
+synthetic; there is no Republic Polytechnic (or any) production integration.
 
 ## Environment variables
 
