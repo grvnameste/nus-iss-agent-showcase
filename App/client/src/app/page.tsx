@@ -1,5 +1,12 @@
+import type { Metadata } from 'next';
 import { Card } from '@/components/ui/Card';
 import { BackendHealth } from '@/components/BackendHealth';
+
+export const metadata: Metadata = {
+  title: 'Home — EduAgent Connect',
+  description:
+    'An original demonstration website exploring how an education platform can become Agent Ready. Synthetic data only.',
+};
 
 /**
  * Home page. Introduces the demonstration and shows a live backend health

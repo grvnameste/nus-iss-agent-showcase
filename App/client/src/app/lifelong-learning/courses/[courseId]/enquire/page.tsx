@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { CourseEnquiry } from '@/components/enquiry/CourseEnquiry';
+import { EnquiryWithNotification } from './EnquiryWithNotification';
+import { CourseBreadcrumbs } from '../CourseBreadcrumbs';
 
 export const metadata: Metadata = {
   title: 'Course enquiry — EduAgent Connect',
@@ -22,8 +23,9 @@ export default function CourseEnquiryPage({
   params: { courseId: string };
 }): React.JSX.Element {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <CourseEnquiry courseId={params.courseId} />
+    <main className="mx-auto max-w-3xl space-y-6 px-4 py-10 sm:px-6">
+      <CourseBreadcrumbs courseId={params.courseId} variant="enquiry" />
+      <EnquiryWithNotification courseId={params.courseId} />
     </main>
   );
 }

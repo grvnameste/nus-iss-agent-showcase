@@ -2,6 +2,8 @@ import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { CourseCatalogue } from '@/components/courses/CourseCatalogue';
 import { CatalogueLoading } from '@/components/courses/CatalogueStates';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { catalogueBreadcrumbs } from '@/components/layout/course-breadcrumbs';
 
 export const metadata: Metadata = {
   title: 'Course Catalogue — EduAgent Connect',
@@ -19,6 +21,8 @@ export const metadata: Metadata = {
 export default function CoursesPage(): React.JSX.Element {
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={catalogueBreadcrumbs} />
+
       <header className="space-y-3">
         <p className="text-sm font-medium uppercase tracking-wide text-sky-700">
           Lifelong Learning
@@ -27,10 +31,10 @@ export default function CoursesPage(): React.JSX.Element {
           Course Catalogue
         </h1>
         <p className="max-w-2xl text-slate-600">
-          Discover continuing-education and professional-development courses for
-          working adults. Search by keyword, filter by discipline, delivery mode
-          and more, then open a course to see its details. All courses and data
-          shown here are synthetic and for demonstration only.
+          Discover continuing-education and professional-development courses for working
+          adults. Search by keyword, filter by discipline, delivery mode and more, then
+          open a course to see its details. All courses and data shown here are synthetic
+          and for demonstration only.
         </p>
       </header>
 

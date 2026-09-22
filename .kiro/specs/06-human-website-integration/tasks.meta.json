@@ -1,0 +1,496 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1.1 TASK-600 — Review Specs 01–05 integration points": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568054
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076578632
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076757797
+      }
+    ],
+    "1.2 TASK-601 — Validate shared contracts (C1–C9)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568083
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076763681
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790078992396
+      }
+    ],
+    "1.3 TASK-602 — Confirm route shapes (comparison & catalogue query)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568113
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079004356
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079121072
+      }
+    ],
+    "1.4 TASK-603 — Resolve documented contract conflicts (CQ-1..CQ-5)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568137
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079131758
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079268803
+      }
+    ],
+    "2.1 TASK-604 — Add `AppProviders` and mount comparison + notification providers": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568163
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079279609
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079480721
+      }
+    ],
+    "2.2 TASK-605 — Complete global navigation (primary + Lifelong-Learning sub-nav)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568188
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079491569
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079643508
+      }
+    ],
+    "2.3 TASK-606 — Complete header/footer": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568209
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079655655
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079798894
+      }
+    ],
+    "2.4 TASK-607 — Add reusable breadcrumbs on course routes": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568235
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079803849
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790080266756
+      }
+    ],
+    "3.1 TASK-608 — Integrate Catalogue → Details": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568272
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790080278331
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790080405985
+      }
+    ],
+    "3.2 TASK-609 — Integrate Catalogue → Comparison": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568291
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790080411732
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086124981
+      }
+    ],
+    "3.3 TASK-610 — Integrate Details → Catalogue / Details → Comparison": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568315
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086130380
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086291782
+      }
+    ],
+    "3.4 TASK-611 — Integrate Details → Enquiry": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568338
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086296813
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086408448
+      }
+    ],
+    "3.5 TASK-612 — Integrate Comparison → Details / → Enquiry / → Catalogue": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568363
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086413626
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086562368
+      }
+    ],
+    "3.6 TASK-613 — Integrate Enquiry → Confirmation → return path": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568387
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086568196
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086723637
+      }
+    ],
+    "4.1 TASK-614 — Standardise global UI patterns": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568411
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086730712
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790087027967
+      }
+    ],
+    "4.2 TASK-615 — Implement the global notification pattern": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568432
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790087033445
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790087578523
+      }
+    ],
+    "4.3 TASK-616 — Complete global error handling (404 + consistency)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568455
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790087584137
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790087740371
+      }
+    ],
+    "4.4 TASK-617 — Complete global loading/empty state consistency": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568479
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790087747304
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790088558815
+      }
+    ],
+    "4.5 TASK-618 — Complete missing human-website shell pieces": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568500
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790088563999
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790088751931
+      }
+    ],
+    "5.1 TASK-619 — Validate responsive integration (incl. mobile navigation)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568523
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790088764246
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790089022874
+      }
+    ],
+    "5.2 TASK-620 — Validate accessibility integration (incl. focus management)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568546
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790089028287
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790089327222
+      }
+    ],
+    "6.1 TASK-621 — Integration/seam tests": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568582
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790089337567
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790089505335
+      }
+    ],
+    "6.2 TASK-622 — End-to-end human journey validation": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568605
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790089516141
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790089764024
+      }
+    ],
+    "6.3 TASK-623 — Non-regression check (Specs 01–05)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568625
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790089769378
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790090448831
+      }
+    ],
+    "7.1 TASK-624 — Documentation": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568648
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790090454681
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790090606828
+      }
+    ],
+    "7.2 TASK-625 — Phase 1 integration readiness review": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790076568672
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790090614442
+      },
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790090763806
+      }
+    ],
+    "1. Contracts & conflict resolution (Phase 0)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790079268845
+      }
+    ],
+    "2. Shared shell & cross-feature state (Phase 1)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790080266790
+      }
+    ],
+    "3. Cross-feature navigation wiring (Phase 2)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790086723677
+      }
+    ],
+    "4. Global UI, states & missing shell (Phase 3)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790088752055
+      }
+    ],
+    "5. Responsive & accessibility integration (Phase 4)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790089327284
+      }
+    ],
+    "6. Integration testing & journey validation (Phase 5)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790090448866
+      }
+    ],
+    "7. Documentation & readiness (Phase 6)": [
+      {
+        "executionId": "a61c04ca-4cdf-4a9f-98c5-d15085552981",
+        "chatSessionId": "sess_1cde08ea-1d43-40be-8a94-64265a6e6c43",
+        "timestamp": 1790090763829
+      }
+    ]
+  }
+}

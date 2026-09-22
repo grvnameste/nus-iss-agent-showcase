@@ -1,17 +1,20 @@
 'use client';
 
-import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { NAV_ITEMS } from '@/config/navigation';
-import { cn } from '@/lib/cn';
+import { NavDisclosure } from './NavDisclosure';
 
 /**
- * Primary navigation (FR-009, FR-010).
+ * Primary navigation (FR-009, FR-010, FR-014, FR-618; NFR-606, AC-614).
  *
  * Renders the top-level sections as client-side links (no full reload) and marks
- * the current section with `aria-current="page"` for accessibility (FR-013).
- * The active section is derived from the pathname: exact match for Home, prefix
- * match for the other sections so nested routes stay highlighted.
+ * the current section with `aria-current="page"` for accessibility (FR-013). The
+ * active section is derived from the pathname: exact match for Home, prefix match
+ * for the other sections so nested routes stay highlighted.
+ *
+ * The layout adapts across breakpoints via the shared {@link NavDisclosure}: an
+ * inline flex-wrap row on larger screens and an accessible "Menu" disclosure on
+ * small screens (a real mobile pattern, not a shrunken desktop bar).
  */
 export function Navigation(): React.JSX.Element {
   const pathname = usePathname();
@@ -22,26 +25,11 @@ export function Navigation(): React.JSX.Element {
       : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
-    <nav aria-label="Primary" className="flex flex-wrap gap-x-1 gap-y-1">
-      {NAV_ITEMS.map((item) => {
-        const active = isActive(item.href);
-        return (
-          <Link
-            key={item.href}
-            href={item.href}
-            aria-current={active ? 'page' : undefined}
-            className={cn(
-              'rounded-md px-3 py-2 text-sm font-medium transition-colors',
-              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600',
-              active
-                ? 'bg-sky-100 text-sky-900'
-                : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900',
-            )}
-          >
-            {item.label}
-          </Link>
-        );
-      })}
-    </nav>
+    <NavDisclosure
+      ariaLabel="Primary"
+      toggleLabel="Menu"
+      items={NAV_ITEMS}
+      isActive={isActive}
+    />
   );
 }

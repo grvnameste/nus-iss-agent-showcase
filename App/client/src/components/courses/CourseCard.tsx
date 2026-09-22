@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { AddToCompareButton } from '@/components/comparison/AddToCompareButton';
 import { Card } from '@/components/ui/Card';
+import { CATALOGUE_HREF } from './details/routes';
 import { AvailabilityBadge } from './AvailabilityBadge';
 import { formatFee, formatDuration } from '@/lib/courses/format';
 import {
@@ -21,7 +22,10 @@ import {
  * state and none of its duplicate or capacity rules.
  */
 export function CourseCard({ course }: { course: Course }): React.JSX.Element {
-  const detailsHref = `/lifelong-learning/courses/${course.id}`;
+  // Derive the details href from the canonical catalogue route constant (Spec 06
+  // seam, FR-601) rather than a hard-coded string, so the Catalogue → Details
+  // seam follows the single source of truth. The course identity is URL-encoded.
+  const detailsHref = `${CATALOGUE_HREF}/${encodeURIComponent(course.id)}`;
 
   return (
     <Card as="article" className="flex h-full flex-col gap-3">

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { CourseDetailsPageClient } from './CourseDetailsPageClient';
+import { CourseBreadcrumbs } from './CourseBreadcrumbs';
 
 export const metadata: Metadata = {
   title: 'Course details — EduAgent Connect',
@@ -22,5 +23,10 @@ export default function CourseDetailsPage({
 }: {
   params: { courseId: string };
 }): React.JSX.Element {
-  return <CourseDetailsPageClient courseId={params.courseId} />;
+  return (
+    <div className="space-y-6">
+      <CourseBreadcrumbs courseId={params.courseId} variant="details" />
+      <CourseDetailsPageClient courseId={params.courseId} />
+    </div>
+  );
 }

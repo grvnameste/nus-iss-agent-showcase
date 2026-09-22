@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { CourseCard } from './CourseCard';
+import { CATALOGUE_HREF } from './details/routes';
 import { ComparisonProvider } from '@/components/comparison/comparison-context';
 import type { Course } from '@/lib/courses/types';
 
@@ -58,7 +59,7 @@ describe('CourseCard', () => {
     expect(screen.getByText(/closing soon/i)).toBeInTheDocument();
 
     const link = screen.getByRole('link', { name: /view details for sample course/i });
-    expect(link).toHaveAttribute('href', '/lifelong-learning/courses/sample-course');
+    expect(link).toHaveAttribute('href', `${CATALOGUE_HREF}/${course.id}`);
   });
 
   it('offers the comparison control for the course (FR-401)', () => {
@@ -67,5 +68,40 @@ describe('CourseCard', () => {
     expect(
       screen.getByRole('button', { name: /add sample course to comparison/i }),
     ).toBeInTheDocument();
+  });
+
+  // Catalogue → Details seam (FR-601): both the "View details" action and the
+  // title link must target the details route for the correct course id, built
+  // from the canonical catalogue route constant (C4). Href assertion only.
+  describe('Catalogue → Details seam (FR-601)', () => {
+    it('points "View details" and the title link at the course details route', () => {
+      renderCard();
+
+      const expectedHref = `${CATALOGUE_HREF}/${course.id}`;
+
+      const viewDetails = screen.getByRole('link', {
+        name: /view details for sample course/i,
+      });
+      expect(viewDetails).toHaveAttribute('href', expectedHref);
+
+      const titleLink = screen.getByRole('link', { name: 'Sample Course' });
+      expect(titleLink).toHaveAttribute('href', expectedHref);
+    });
+
+    it('URL-encodes the course id in the details href', () => {
+      const courseWithSpecialId: Course = { ...course, id: 'data & analytics/101' };
+
+      render(
+        <ComparisonProvider>
+          <CourseCard course={courseWithSpecialId} />
+        </ComparisonProvider>,
+      );
+
+      const expectedHref = `${CATALOGUE_HREF}/${encodeURIComponent(courseWithSpecialId.id)}`;
+      const viewDetails = screen.getByRole('link', {
+        name: /view details for sample course/i,
+      });
+      expect(viewDetails).toHaveAttribute('href', expectedHref);
+    });
   });
 });

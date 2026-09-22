@@ -37,7 +37,20 @@ type SubmissionState =
 
 const GENERIC_SUBMIT_ERROR = 'We could not submit your enquiry. Please try again.';
 
-export function CourseEnquiry({ courseId }: { courseId: string }): React.JSX.Element {
+export function CourseEnquiry({
+  courseId,
+  onSubmitted,
+}: {
+  courseId: string;
+  /**
+   * Optional, additive hook fired once when a submission succeeds (Spec 06,
+   * FR-621). Lets an integration host surface a *global* notification without
+   * this component depending on the notification channel. When omitted the
+   * component behaves exactly as before — the local confirmation state and
+   * `aria-live` region are unchanged and remain the primary feedback.
+   */
+  onSubmitted?: (result: EnquiryConfirmationResult) => void;
+}): React.JSX.Element {
   const [courseState, setCourseState] = useState<CourseState>({ phase: 'loading' });
   const [submission, setSubmission] = useState<SubmissionState>({ phase: 'idle' });
   const [reloadToken, setReloadToken] = useState(0);
@@ -92,6 +105,9 @@ export function CourseEnquiry({ courseId }: { courseId: string }): React.JSX.Ele
       .then((result) => {
         // Deliberately stays true: a confirmed enquiry is never resubmittable.
         setSubmission({ phase: 'success', result });
+        // Additive global-notification hook; local confirmation state is the
+        // primary feedback and is unaffected (Spec 06, FR-621).
+        onSubmitted?.(result);
       })
       .catch((error: unknown) => {
         // A failure is retryable, so the guard is released (FR-517).
@@ -115,7 +131,7 @@ export function CourseEnquiry({ courseId }: { courseId: string }): React.JSX.Ele
         // Anything unexpected is reported generically — never raw (SR-503).
         setSubmission({ phase: 'error', message: GENERIC_SUBMIT_ERROR });
       });
-  }, []);
+  }, [onSubmitted]);
 
   if (courseState.phase === 'loading') return <EnquiryLoading />;
   if (courseState.phase === 'unavailable') {

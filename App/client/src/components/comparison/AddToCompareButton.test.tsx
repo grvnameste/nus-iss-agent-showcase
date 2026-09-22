@@ -5,17 +5,33 @@ import userEvent from '@testing-library/user-event';
 import { AddToCompareButton } from './AddToCompareButton';
 import { ComparisonAnnouncer } from './ComparisonAnnouncer';
 import { ComparisonProvider, MAX_COMPARISON_COURSES } from './comparison-context';
+import { NotificationProvider } from '@/components/notifications/notification-context';
 import { makeCourse } from './test-courses';
 
 const course = makeCourse({ id: 'data-analytics', title: 'Data Analytics' });
 
+/**
+ * The button now emits a *global* notification on the 'full' outcome (Spec 06,
+ * TASK-615), so it needs the `NotificationProvider` mounted too. The comparison
+ * announcer's own live region is unchanged and still asserted below.
+ */
 function renderInProvider(children: ReactNode): void {
   render(
     <ComparisonProvider>
-      <ComparisonAnnouncer />
-      {children}
+      <NotificationProvider>
+        <ComparisonAnnouncer />
+        {children}
+      </NotificationProvider>
     </ComparisonProvider>,
   );
+}
+
+/** The comparison announcer is the `status` region carrying the selection text. */
+function comparisonStatusText(): string {
+  const region = screen
+    .getAllByRole('status')
+    .find((element) => element.className.includes('sr-only'));
+  return region?.textContent ?? '';
 }
 
 describe('AddToCompareButton', () => {
@@ -56,7 +72,7 @@ describe('AddToCompareButton', () => {
 
     await user.click(screen.getByRole('button', { name: /add data analytics/i }));
 
-    expect(screen.getByRole('status')).toHaveTextContent(
+    expect(comparisonStatusText()).toMatch(
       /data analytics added to comparison\. 1 of 4 courses selected/i,
     );
   });
@@ -91,12 +107,45 @@ describe('AddToCompareButton', () => {
 
     await user.click(blocked);
 
-    expect(screen.getByRole('status')).toHaveTextContent(
+    expect(comparisonStatusText()).toMatch(
       /you can compare up to 4 courses at a time/i,
     );
     expect(
       screen.queryByRole('button', { name: /remove data analytics/i }),
     ).not.toBeInTheDocument();
+  });
+
+  it('surfaces a global notification when an add is rejected at capacity (FR-621)', async () => {
+    const user = userEvent.setup();
+    const others = ['a', 'b', 'c', 'd'].map((id) =>
+      makeCourse({ id, title: `Course ${id.toUpperCase()}` }),
+    );
+
+    renderInProvider(
+      <>
+        {others.map((other) => (
+          <AddToCompareButton key={other.id} course={other} />
+        ))}
+        <AddToCompareButton course={course} />
+      </>,
+    );
+
+    for (const other of others) {
+      await user.click(
+        screen.getByRole('button', { name: new RegExp(`add ${other.title}`, 'i') }),
+      );
+    }
+
+    // The rejected add is at capacity: the global (assertive) channel announces
+    // it with a colour-independent textual tone label, additive to the
+    // comparison announcer's own live region.
+    await user.click(screen.getByRole('button', { name: /cannot add data analytics/i }));
+
+    const assertive = screen.getByTestId('notification-region-assertive');
+    expect(assertive).toHaveTextContent(/Error:/);
+    expect(assertive).toHaveTextContent(
+      new RegExp(`comparison is full \\(max ${MAX_COMPARISON_COURSES}\\)`, 'i'),
+    );
   });
 
   it('is operable from the keyboard alone (AC-411)', async () => {

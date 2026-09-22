@@ -81,6 +81,33 @@ the real features — see [`phase-1-integration.md`](./phase-1-integration.md).
 Cross-feature integration and quality gates (Specs 06 and 07) remain. All data is
 synthetic; there is no Republic Polytechnic (or any) production integration.
 
+### Phase 1 integration (Specification 06)
+
+The independently-built human capabilities (Catalogue 02, Details 03,
+Comparison 04, Enquiry 05) are now integrated into one coherent human website on
+the Spec 01 shell:
+
+- **Shell providers** — an integration-owned `AppProviders` wrapper
+  (`client/src/components/providers/AppProviders.tsx`) mounts Spec 04's
+  `ComparisonProvider` and a shell-level `NotificationProvider` once in the root
+  layout, so comparison state and a global notification channel are shared across
+  routes. `RouteFocus` re-orients focus on client-side route changes.
+- **Navigation** — the primary nav and a Lifelong-Learning sub-nav share the
+  responsive `NavDisclosure` pattern (usable on mobile); breadcrumbs appear on the
+  course routes; the footer adds secondary links while keeping the demo notice.
+- **Global states** — a global `not-found` (404) page, an accessible `useNotify()`
+  notification pattern (adopted for enquiry-submitted and comparison-full), and
+  consistent error/empty/loading states across features.
+- **End-to-end journey** — Catalogue → Details → Comparison → Enquiry →
+  Confirmation → return, carrying a stable Course ID throughout.
+
+Details, the shell/provider architecture, the final resolved contracts/routes,
+and the end-to-end journey are in
+[`phase-1-integration.md`](./phase-1-integration.md); the shared UI patterns are
+in [`ui-consistency-guide.md`](./ui-consistency-guide.md). WebMCP / agent
+functionality is **not** part of this integration — it remains a **future phase**
+(Phase 2, Agent-Ready Transformation).
+
 ## Environment variables
 
 - **Server (server-only):** `PORT`, `NODE_ENV`, `CORS_ORIGIN`, `LOG_LEVEL`

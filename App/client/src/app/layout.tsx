@@ -2,10 +2,11 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { ComparisonAnnouncer } from '@/components/comparison/ComparisonAnnouncer';
 import { ComparisonBar } from '@/components/comparison/ComparisonBar';
-import { ComparisonProvider } from '@/components/comparison/comparison-context';
+import { AppProviders } from '@/components/providers/AppProviders';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { RouteFocus } from '@/components/layout/RouteFocus';
 
 export const metadata: Metadata = {
   title: 'EduAgent Connect',
@@ -18,10 +19,16 @@ export const metadata: Metadata = {
  * (header / main / footer), a keyboard skip link, and consistent structure that
  * wraps every route.
  *
- * `ComparisonProvider` is mounted here (Spec 04, FR-407) so a learner's
- * shortlist survives navigation between the catalogue, a course's details, and
- * the comparison view. The live region and the running "Compare (n)" affordance
- * sit inside it for the same reason.
+ * Cross-feature client providers are mounted once via `AppProviders`
+ * (Spec 06, AD-601, FR-623, FR-621): Spec 04's `ComparisonProvider` — so a
+ * learner's shortlist survives navigation between the catalogue, a course's
+ * details, and the comparison view — and the shell-level `NotificationProvider`
+ * for accessible cross-feature feedback. The comparison live region and the
+ * running "Compare (n)" affordance sit inside the providers for the same reason.
+ *
+ * `RouteFocus` (Spec 06, AD-609, NFR-605) manages focus on client-side route
+ * changes so keyboard/screen-reader users are re-oriented to the new page's
+ * main landmark rather than being stranded on a stale control.
  */
 export default function RootLayout({
   children,
@@ -35,13 +42,14 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <ComparisonProvider>
+        <AppProviders>
+          <RouteFocus />
           <Header />
           <PageContainer>{children}</PageContainer>
           <ComparisonAnnouncer />
           <ComparisonBar />
           <Footer />
-        </ComparisonProvider>
+        </AppProviders>
       </body>
     </html>
   );

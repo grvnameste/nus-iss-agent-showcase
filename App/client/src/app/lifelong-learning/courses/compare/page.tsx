@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
 import { ComparisonView } from '@/components/comparison/ComparisonView';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { comparisonBreadcrumbs } from '@/components/layout/course-breadcrumbs';
 
 export const metadata: Metadata = {
   title: 'Compare courses — EduAgent Connect',
@@ -21,6 +23,8 @@ export const metadata: Metadata = {
 export default function CourseComparisonPage(): React.JSX.Element {
   return (
     <div className="space-y-6">
+      <Breadcrumbs items={comparisonBreadcrumbs} />
+
       <header className="space-y-3">
         <p className="text-sm font-medium uppercase tracking-wide text-sky-700">
           Lifelong Learning
