@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { AddToCompareButton } from '@/components/comparison/AddToCompareButton';
 import { Card } from '@/components/ui/Card';
 import { AvailabilityBadge } from './AvailabilityBadge';
 import { formatFee, formatDuration } from '@/lib/courses/format';
@@ -14,6 +15,10 @@ import {
  * next intake, fee, and availability — with a clear "View Details" action.
  * Presentation only; no business logic. Semantic <article> with a heading so the
  * grid is navigable by assistive technology.
+ *
+ * The comparison control is Specification 04's `AddToCompareButton`, rendered
+ * through that specification's shared interface — the card holds no comparison
+ * state and none of its duplicate or capacity rules.
  */
 export function CourseCard({ course }: { course: Course }): React.JSX.Element {
   const detailsHref = `/lifelong-learning/courses/${course.id}`;
@@ -59,17 +64,20 @@ export function CourseCard({ course }: { course: Course }): React.JSX.Element {
         </div>
       </dl>
 
-      <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+      <div className="mt-auto flex flex-wrap items-center justify-between gap-3 pt-2">
         <p className="text-sm font-semibold text-slate-900">
           {formatFee(course.fee, course.currency)}
         </p>
-        <Link
-          href={detailsHref}
-          className="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-sky-800 ring-1 ring-inset ring-sky-300 transition-colors hover:bg-sky-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
-          aria-label={`View details for ${course.title}`}
-        >
-          View details
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          <AddToCompareButton course={course} />
+          <Link
+            href={detailsHref}
+            className="inline-flex items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-sky-800 ring-1 ring-inset ring-sky-300 transition-colors hover:bg-sky-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-600"
+            aria-label={`View details for ${course.title}`}
+          >
+            View details
+          </Link>
+        </div>
       </div>
     </Card>
   );

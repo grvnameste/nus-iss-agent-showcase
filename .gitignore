@@ -7,8 +7,6 @@ node_modules/
 App/client/.next/
 App/client/out/
 App/server/dist/
-App/docs/
-docs/
 dist/
 build/
 
@@ -36,3 +34,8 @@ coverage/
 
 # TypeScript
 *.tsbuildinfo
+
+# Documentation
+docs/
+App/docs/
+**/docs/

@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { CourseCard } from './CourseCard';
+import { ComparisonProvider } from '@/components/comparison/comparison-context';
 import type { Course } from '@/lib/courses/types';
 
 vi.mock('next/navigation', () => ({
@@ -33,9 +34,18 @@ const course: Course = {
   tags: [],
 };
 
+function renderCard(): void {
+  // The card renders Spec 04's compare control, which reads comparison state.
+  render(
+    <ComparisonProvider>
+      <CourseCard course={course} />
+    </ComparisonProvider>,
+  );
+}
+
 describe('CourseCard', () => {
   it('renders key attributes with an accessible heading and details link', () => {
-    render(<CourseCard course={course} />);
+    renderCard();
 
     expect(screen.getByRole('heading', { name: /sample course/i })).toBeInTheDocument();
     expect(screen.getByText('A concise summary.')).toBeInTheDocument();
@@ -49,5 +59,13 @@ describe('CourseCard', () => {
 
     const link = screen.getByRole('link', { name: /view details for sample course/i });
     expect(link).toHaveAttribute('href', '/lifelong-learning/courses/sample-course');
+  });
+
+  it('offers the comparison control for the course (FR-401)', () => {
+    renderCard();
+
+    expect(
+      screen.getByRole('button', { name: /add sample course to comparison/i }),
+    ).toBeInTheDocument();
   });
 });

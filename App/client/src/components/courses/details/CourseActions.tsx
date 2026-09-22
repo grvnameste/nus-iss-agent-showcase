@@ -38,11 +38,18 @@ export function CourseActions({
         {comparison && (
           <Button
             variant="secondary"
-            onClick={() => comparison.add(course)}
-            disabled={alreadyAdded || blockedByLimit}
+            onClick={() => {
+              if (alreadyAdded) {
+                comparison.remove(course.id);
+                return;
+              }
+              comparison.add(course);
+            }}
+            aria-disabled={blockedByLimit}
             aria-describedby={blockedByLimit ? 'comparison-limit-hint' : undefined}
+            className={blockedByLimit ? 'cursor-not-allowed opacity-60' : undefined}
           >
-            {alreadyAdded ? 'Added to comparison' : 'Add to comparison'}
+            {alreadyAdded ? 'Remove from comparison' : 'Add to comparison'}
           </Button>
         )}
 

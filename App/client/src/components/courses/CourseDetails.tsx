@@ -42,7 +42,7 @@ export function CourseDetails({
   comparison,
 }: {
   courseId: string;
-  /** Optional Spec 04 comparison interface; omitted until Spec 04 is wired in. */
+  /** Optional Spec 04 comparison interface supplied by the route host. */
   comparison?: CourseComparisonSeam;
 }): React.JSX.Element {
   const [state, setState] = useState<DetailState>({ phase: 'loading' });

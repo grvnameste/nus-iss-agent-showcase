@@ -10,13 +10,15 @@ import type { Course } from '@/lib/courses/types';
  * rules), so the page delegates every decision to the provided implementation.
  *
  * The seam is passed in as an optional prop rather than read from a context
- * owned here: when Spec 04 is not available the prop is simply absent, the
- * affordance is omitted, and the rest of the page is unaffected (AC-309).
- * Integration (Spec 06) supplies the real `useComparison()` value.
+ * owned here: when Spec 04 is unavailable the prop can be omitted and the page
+ * still works (AC-309). The route host provides the real `useComparison()`
+ * implementation when comparison is enabled.
  */
 export interface CourseComparisonSeam {
   /** Add a course to the comparison. Duplicate/limit handling belongs to Spec 04. */
   add: (course: Course) => void;
+  /** Remove a course from the comparison by shared Course `id`. */
+  remove: (courseId: string) => void;
   /** Whether the course is already selected for comparison. */
   has: (courseId: string) => boolean;
   /** Whether the comparison is at capacity. */

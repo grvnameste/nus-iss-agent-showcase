@@ -124,20 +124,20 @@ target, `enquiryHref` is the single line to change.
 
 `CourseDetails` accepts an **optional** `comparison` prop typed by
 `details/comparison-seam.ts` — the structural subset of Spec 04's documented
-`useComparison()` interface that this page needs (`add`, `has`, `isFull`,
-`max`):
+`useComparison()` interface that this page needs (`add`, `remove`, `has`,
+`isFull`, `max`):
 
 - When it is **supplied**, the page renders an **Add to comparison** button that
-  delegates entirely to the interface: `has(id)` drives the "Added to
-  comparison" disabled state and `isFull` drives the disabled-at-capacity state
-  and its announced hint.
-- When it is **absent** (today), the affordance is simply omitted and the rest of
-  the page works unchanged.
+  delegates entirely to the interface: `has(id)` toggles the action label
+  between **Add to comparison** and **Remove from comparison**, while `isFull`
+  drives the disabled-at-capacity state and its announced hint.
+- When it is **absent**, the affordance is omitted and the rest of the page works
+  unchanged.
 
 **No comparison internals live here** — no state, no duplicate rule, no capacity
 rule. The seam is a prop rather than a context owned by this feature, precisely
-so Spec 04 stays the owner; integration (Spec 06) supplies the real
-`useComparison()` value. The route host passes nothing today.
+so Spec 04 stays the owner; the route host supplies the real
+`useComparison()` value through a small client wrapper.
 
 ### Back to catalogue
 
@@ -174,7 +174,7 @@ testing (Specification 07).
 `coursesApi`** (the transport seam — no network, no timers), covering:
 full information rendering, request-by-id, availability as text, the Enquire
 target, the catalogue links, 404 → not-found, the announced loading state,
-error + retry re-request, the comparison affordance present/absent/added/at-limit,
+error + retry re-request, the comparison affordance present/absent/add/remove/at-limit,
 the accessibility baseline, and abort-on-unmount.
 
 Run them with:

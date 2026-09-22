@@ -11,7 +11,7 @@ in `.kiro/steering/`.
 - **Security & agent safety** → `.kiro/steering/security.md`
 - **Testing approach & verification gates** → `.kiro/steering/testing.md`
 
-## Status — Specifications 01 (Foundation), 02 (Course Catalogue) and 03 (Course Details) implemented
+## Status — Specifications 01 (Foundation), 02 (Course Catalogue), 03 (Course Details) and 04 (Course Comparison) implemented
 
 The Course Catalogue (Specification 02) is implemented and documented in
 [`course-catalogue.md`](./course-catalogue.md): synthetic course data, the
@@ -28,9 +28,17 @@ takes next (enquire, optionally add to comparison, back to the catalogue). It is
 **frontend-only** — it reuses the Specification 02 Course capability and adds no
 backend code, no endpoint, and no course business logic.
 
-> The Course Catalogue and Course Details are **human-facing only**. AI-agent /
-> WebMCP / MCP functionality is **not** implemented; the Agent-Ready / WebMCP
-> transformation remains a **future phase**.
+Course Comparison (Specification 04) is implemented and documented in
+[`course-comparison.md`](./course-comparison.md): a client-side shortlist of up
+to four courses, added from the catalogue and reviewed side by side at
+`/lifelong-learning/courses/compare`, with links on to a course's details or its
+enquiry entry point. It is **frontend-only** — a React context over the
+Specification 02 Course model, with no backend code, no endpoint, and no
+database. Nothing is ranked, scored, or recommended.
+
+> The Course Catalogue, Course Details and Course Comparison are **human-facing
+> only**. AI-agent / WebMCP / MCP functionality is **not** implemented; the
+> Agent-Ready / WebMCP transformation remains a **future phase**.
 
 ### Foundation (Specification 01)
 
@@ -54,9 +62,9 @@ Repositories → Data so future agent tools can reuse the same business
 capabilities. **WebMCP is a future capability and is not implemented in
 Specification 01** — there are no agent tools, no agent, and no AI integration.
 
-Course **comparison** and the **enquiry** workflow are not implemented yet; they
-are introduced by later specifications. The details page already carries the
-guarded seams for both — see
+The **enquiry** workflow is not implemented yet; it is introduced by a later
+specification. The details page already carries the guarded seams for both
+comparison and enquiry — see
 [`phase-1-integration.md`](./phase-1-integration.md). All data is synthetic; there is no
 Republic Polytechnic (or any) production integration.
 

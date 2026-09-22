@@ -18,17 +18,19 @@ enquiry submission → submission status`
 Write actions (enquiry submission) always require **explicit human
 confirmation**, and the backend **independently validates** every write.
 
-> Status: **Specifications 01 (Foundation), 02 (Course Catalogue) and 03 (Course
-> Details) implemented.** The website shell, navigation, backend API foundation,
+> Status: **Specifications 01 (Foundation), 02 (Course Catalogue), 03 (Course
+> Details), and 04 (Course Comparison) implemented.** The website shell, navigation, backend API foundation,
 > and health endpoint are in place, plus a **human-facing Course Catalogue**:
 > course discovery via `GET /api/courses` and `GET /api/courses/:courseId`
 > (search/filter/sort/pagination) and an accessible catalogue UI at
 > `/lifelong-learning/courses` — and a complete **Course Details** page at
 > `/lifelong-learning/courses/:courseId`, a frontend-only presentation layer over
-> the same Course capability. Course comparison and the enquiry workflow arrive
-> with later specifications. See
+> the same Course capability — plus a **human-facing Course Comparison** view at
+> `/lifelong-learning/courses/compare`. The enquiry workflow remains a later
+> specification. See
 > [`App/docs/course-catalogue.md`](App/docs/course-catalogue.md) and
-> [`App/docs/course-details.md`](App/docs/course-details.md).
+> [`App/docs/course-details.md`](App/docs/course-details.md) and
+> [`App/docs/course-comparison.md`](App/docs/course-comparison.md).
 >
 > **The Course Catalogue and Course Details are human-facing only. WebMCP /
 > AI-agent functionality is a future capability and is not implemented.** The
@@ -79,8 +81,8 @@ App/
 .kiro/
 ├── steering/   # Kiro steering: product, architecture, coding-standards,
 │               # security, testing
-└── specs/      # 01-foundation, 02-course-catalogue, 03-course-details
-                # (all three implemented)
+└── specs/      # 01-foundation, 02-course-catalogue, 03-course-details,
+                # 04-course-comparison (all four implemented)
 ```
 
 ## Prerequisites

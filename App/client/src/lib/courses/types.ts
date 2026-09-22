@@ -5,6 +5,7 @@
  * the Zod schema; the client uses derived, structurally-compatible types). They
  * are plain data shapes for rendering — no business logic lives here (FR-216).
  */
+import { z } from 'zod';
 
 export const DISCIPLINES = [
   'Artificial Intelligence',
@@ -54,30 +55,38 @@ export type CourseLevel = (typeof COURSE_LEVELS)[number];
 export type CourseStatus = (typeof COURSE_STATUSES)[number];
 export type CourseAvailability = (typeof COURSE_AVAILABILITIES)[number];
 
-export interface Course {
-  id: string;
-  code: string;
-  title: string;
-  shortDescription: string;
-  description: string;
-  discipline: Discipline;
-  category: string;
-  courseType: CourseType;
-  level: CourseLevel;
-  durationWeeks: number;
-  deliveryMode: DeliveryMode;
-  intake: string;
-  startDate: string;
-  applicationDeadline: string;
-  fee: number;
-  currency: string;
-  eligibility: string;
-  entryRequirements: string[];
-  skills: string[];
-  status: CourseStatus;
-  availability: CourseAvailability;
-  tags: string[];
-}
+/**
+ * Shared client-side runtime schema for a course payload.
+ *
+ * This keeps all client consumers (rendering, storage guards, test fixtures)
+ * aligned to one model contract instead of repeating object shapes.
+ */
+export const COURSE_SCHEMA = z.object({
+  id: z.string().min(1),
+  code: z.string(),
+  title: z.string().min(1),
+  shortDescription: z.string(),
+  description: z.string(),
+  discipline: z.enum(DISCIPLINES),
+  category: z.string(),
+  courseType: z.enum(COURSE_TYPES),
+  level: z.enum(COURSE_LEVELS),
+  durationWeeks: z.number().finite(),
+  deliveryMode: z.enum(DELIVERY_MODES),
+  intake: z.string(),
+  startDate: z.string(),
+  applicationDeadline: z.string(),
+  fee: z.number().finite(),
+  currency: z.string(),
+  eligibility: z.string(),
+  entryRequirements: z.array(z.string()),
+  skills: z.array(z.string()),
+  status: z.enum(COURSE_STATUSES),
+  availability: z.enum(COURSE_AVAILABILITIES),
+  tags: z.array(z.string()),
+});
+
+export type Course = z.infer<typeof COURSE_SCHEMA>;
 
 export type CourseSortField =
   | 'relevance'

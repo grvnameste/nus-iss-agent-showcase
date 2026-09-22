@@ -50,6 +50,19 @@ vi.mock('@/lib/courses/api', () => ({
 }));
 
 import { CourseCatalogue } from './CourseCatalogue';
+import { ComparisonProvider } from '@/components/comparison/comparison-context';
+
+/**
+ * Course cards render Spec 04's compare control, which reads the comparison
+ * state mounted in the app shell — so the catalogue is exercised inside it.
+ */
+function renderCatalogue(): void {
+  render(
+    <ComparisonProvider>
+      <CourseCatalogue />
+    </ComparisonProvider>,
+  );
+}
 
 function makeCourse(overrides: Partial<Course> & { id: string }): Course {
   return {
@@ -104,7 +117,7 @@ describe('CourseCatalogue', () => {
     listMock.mockResolvedValueOnce(
       listResponse([makeCourse({ id: 'a', title: 'Alpha Course' })]),
     );
-    render(<CourseCatalogue />);
+    renderCatalogue();
 
     expect(screen.getByText(/loading courses/i)).toBeInTheDocument();
 
@@ -116,7 +129,7 @@ describe('CourseCatalogue', () => {
 
   it('shows an empty state with a reset action after searching', async () => {
     listMock.mockResolvedValueOnce(listResponse([makeCourse({ id: 'a' })]));
-    render(<CourseCatalogue />);
+    renderCatalogue();
     await screen.findByText(/showing/i);
 
     // Subsequent calls return no matches (debounce + submit may each fire).
@@ -133,7 +146,7 @@ describe('CourseCatalogue', () => {
 
   it('shows an error state with retry, and retries on click', async () => {
     listMock.mockRejectedValueOnce(new CourseApiError('Unable to reach the course service.'));
-    render(<CourseCatalogue />);
+    renderCatalogue();
 
     expect(await screen.findByRole('alert')).toHaveTextContent(/couldn.t load/i);
 
@@ -148,7 +161,7 @@ describe('CourseCatalogue', () => {
 
   it('sends the keyword to the API when searching', async () => {
     listMock.mockResolvedValue(listResponse([makeCourse({ id: 'a' })]));
-    render(<CourseCatalogue />);
+    renderCatalogue();
     await screen.findByText(/showing/i);
 
     await userEvent.type(screen.getByLabelText(/search courses/i), 'security{enter}');
@@ -163,7 +176,7 @@ describe('CourseCatalogue', () => {
 
   it('sends a selected discipline filter to the API', async () => {
     listMock.mockResolvedValue(listResponse([makeCourse({ id: 'a' })]));
-    render(<CourseCatalogue />);
+    renderCatalogue();
     await screen.findByText(/showing/i);
 
     await userEvent.click(screen.getByLabelText('Cybersecurity'));
@@ -178,7 +191,7 @@ describe('CourseCatalogue', () => {
 
   it('sends sort selections to the API', async () => {
     listMock.mockResolvedValue(listResponse([makeCourse({ id: 'a' })]));
-    render(<CourseCatalogue />);
+    renderCatalogue();
     await screen.findByText(/showing/i);
 
     await userEvent.selectOptions(screen.getByLabelText(/sort by/i), 'fee');
@@ -198,7 +211,7 @@ describe('CourseCatalogue', () => {
     listMock.mockResolvedValue(
       listResponse(many, { totalItems: 24, totalPages: 2 }),
     );
-    render(<CourseCatalogue />);
+    renderCatalogue();
     await screen.findByText(/showing/i);
 
     const nav = await screen.findByRole('navigation', { name: /results pages/i });
@@ -216,7 +229,7 @@ describe('CourseCatalogue', () => {
     listMock.mockResolvedValueOnce(
       listResponse([makeCourse({ id: 'cyber-101', title: 'Cyber 101' })]),
     );
-    render(<CourseCatalogue />);
+    renderCatalogue();
 
     const link = await screen.findByRole('link', {
       name: /view details for cyber 101/i,

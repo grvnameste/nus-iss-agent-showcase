@@ -70,6 +70,7 @@ function makeComparison(
 ): CourseComparisonSeam {
   return {
     add: vi.fn(),
+    remove: vi.fn(),
     has: () => false,
     isFull: false,
     max: 4,
@@ -230,6 +231,27 @@ describe('CourseDetails', () => {
     expect(add).toHaveBeenCalledWith(course);
   });
 
+  it('removes from comparison through the shared interface when already selected', async () => {
+    const user = userEvent.setup();
+    const course = makeCourse();
+    getByIdMock.mockResolvedValue(course);
+    const add = vi.fn();
+    const remove = vi.fn();
+    const comparison = makeComparison({
+      add,
+      remove,
+      has: () => true,
+    });
+
+    render(<CourseDetails courseId={course.id} comparison={comparison} />);
+
+    const button = await screen.findByRole('button', { name: /remove from comparison/i });
+    await user.click(button);
+
+    expect(remove).toHaveBeenCalledWith(course.id);
+    expect(add).not.toHaveBeenCalled();
+  });
+
   it('omits the comparison affordance when the interface is unavailable (AC-309)', async () => {
     getByIdMock.mockResolvedValue(makeCourse());
 
@@ -254,8 +276,8 @@ describe('CourseDetails', () => {
       />,
     );
     expect(
-      await screen.findByRole('button', { name: /added to comparison/i }),
-    ).toBeDisabled();
+      await screen.findByRole('button', { name: /remove from comparison/i }),
+    ).toBeEnabled();
     unmount();
 
     render(
@@ -267,7 +289,7 @@ describe('CourseDetails', () => {
     const full = await screen.findByRole('button', {
       name: /add to comparison/i,
     });
-    expect(full).toBeDisabled();
+    expect(full).toHaveAttribute('aria-disabled', 'true');
     expect(screen.getByText(/compare up to 4 courses/i)).toBeInTheDocument();
   });
 
