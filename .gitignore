@@ -4,9 +4,9 @@ node_modules/
 .pnp.js
 
 # Build outputs
-App/client/.next/
-App/client/out/
-App/server/dist/
+client/.next/
+client/out/
+server/dist/
 dist/
 build/
 
@@ -37,7 +37,6 @@ coverage/
 
 # Documentation
 docs/
-App/docs/
 **/docs/
 
 # AI agents (ignore all agent tooling except Kiro)
