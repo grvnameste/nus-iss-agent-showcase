@@ -3,20 +3,21 @@
 ## Repository layout
 
 ```
-App/
+<repo root>/
 ├── client/     # Next.js + React + TypeScript + Tailwind (frontend + WebMCP layer)
 ├── server/     # Node.js + Express + TypeScript REST API (all business logic)
-└── docs/        # Project documentation
-.kiro/           # Kiro steering (this folder) and future specs
+├── docs/        # Project documentation
+└── .kiro/       # Kiro steering (this folder) and specs
 ```
 
-`App/` is an npm workspaces monorepo (`client`, `server`). The root
-`App/package.json` provides orchestration scripts (`dev`, `build`, `typecheck`,
-`lint`).
+The **repository root** is an npm workspaces monorepo (`client`, `server`). The
+root `package.json` provides orchestration scripts (`dev`, `build`, `typecheck`,
+`lint`). (Historically these lived under an `App/` folder; they were moved to the
+repo root — steering and specs now use the root-level paths.)
 
 ## Layers
 
-### Backend (`App/server`) — the source of truth
+### Backend (`server/`) — the source of truth
 
 - Owns **all business logic**. Rule: business logic belongs in backend services,
   never in the frontend, and never in WebMCP tools.
@@ -31,7 +32,7 @@ App/
   - `src/routes/*` — HTTP routing only.
   - `src/config/env.ts` — Zod-validated environment configuration.
 
-### Frontend (`App/client`) — UI + WebMCP capability layer
+### Frontend (`client/`) — UI + WebMCP capability layer
 
 - Next.js App Router (`src/app`). React with strict mode.
 - Hosts the **WebMCP capability layer** at `src/lib/webmcp/`.
@@ -77,9 +78,17 @@ Agent / UI → WebMCP capability → CapabilityTransport (adapter)
 ## Deployment
 
 - Target platform: **Vercel**.
-- `client` deploys as a Next.js app. `server` is an Express API (deployed as a
-  separate service / serverless functions as a later spec defines).
-- `NEXT_PUBLIC_API_BASE_URL` points the client at the backend.
+- This is a **monorepo**, so the Vercel project's **Root Directory must be set to
+  `client`** — Vercel builds only the Next.js app, not the whole repo. Building
+  the repo root (which contains the Express `server`) as a single Next project is
+  the wrong shape and will fail.
+- `client` deploys as a Next.js app. `server` is an Express API and is **not** a
+  Next app; it deploys as a **separate service** (or serverless functions as a
+  later spec defines), never bundled into the client build. A future `mcp-server`
+  workspace likewise deploys as its own service.
+- `NEXT_PUBLIC_API_BASE_URL` (set in the Vercel `client` project) points the
+  client at the deployed backend.
+- See `DEPLOYMENT.md` (repo root) for the concrete monorepo setup.
 
 ## Constraints
 

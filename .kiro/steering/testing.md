@@ -50,7 +50,7 @@ Independent of automated tests, each task must pass:
 
 ## Manual verification (foundation)
 
-1. `npm install` at `App/`.
+1. `npm install` at the repository root.
 2. `npm run dev` (starts client on :3000 and server on :4000).
 3. Confirm `curl http://localhost:4000/api/health` returns status `ok`.
 4. Open `http://localhost:3000` and confirm the health panel shows `ok`.
