@@ -1,0 +1,19 @@
+{
+  // Type-checks the test suite, which is excluded from the Next.js production
+  // build (see tsconfig.json `exclude`). Tests may import across the workspace
+  // boundary (e.g. `server/src/*`), so those files are included here too.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "../server/src/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}
