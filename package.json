@@ -5,7 +5,8 @@
   "description": "EduAgent Connect — a prototype demonstrating an Agent Ready education website using a WebMCP-style capability layer.",
   "workspaces": [
     "client",
-    "server"
+    "server",
+    "mcp-server"
   ],
   "engines": {
     "node": ">=20"
@@ -17,8 +18,10 @@
     "build": "npm run build --workspace server && npm run build --workspace client",
     "start:server": "npm run start --workspace server",
     "start:client": "npm run start --workspace client",
-    "typecheck": "npm run typecheck --workspace server && npm run typecheck --workspace client",
-    "lint": "npm run lint --workspace server && npm run lint --workspace client",
+    "typecheck": "npm run typecheck --workspace server && npm run typecheck --workspace client && npm run typecheck --workspace mcp-server",
+    "lint": "npm run lint --workspace server && npm run lint --workspace client && npm run lint --workspace mcp-server",
+    "dev:mcp": "npm run dev --workspace mcp-server",
+    "build:mcp": "npm run build --workspace mcp-server",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

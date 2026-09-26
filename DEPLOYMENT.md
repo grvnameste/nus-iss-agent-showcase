@@ -77,12 +77,21 @@ URL, and add the client's Vercel domain to the server's `CORS_ORIGIN`.
 
 ---
 
-## 3. MCP server (`mcp-server/`, Phase 2)
+## 3. MCP server (`mcp-server/`, Phase 2 — Spec 12)
 
-When added (Spec 12), the MCP server is a **third, separate service**. It reuses
-the existing backend (via HTTP to `server/`) and is configured through its own
-validated env (e.g. an API base URL + transport mode). It is never bundled into
-the `client` Vercel build. See `.kiro/specs/12-mcp-server/`.
+The MCP server is a **third, separate service** and is never bundled into the
+`client` Vercel build. As implemented (Spec 12, Option B) it **reuses the backend
+services in-process** by importing them directly from `server/src`, so it needs no
+API base URL — only a transport (stdio) and log level via its validated env.
+
+```bash
+npm run build --workspace mcp-server
+npm run start --workspace mcp-server   # node dist/index.js (stdio)
+```
+
+MCP clients launch it over stdio. `submit_enquiry` is **fail-closed**: it refuses
+to write unless a human-approval channel is wired. See `mcp-server/README.md` and
+`.kiro/specs/12-mcp-server/`.
 
 ---
 
