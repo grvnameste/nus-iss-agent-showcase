@@ -1,0 +1,18 @@
+[Unit]
+Description=EduAgent Connect — Express API (server)
+After=network.target
+
+[Service]
+Type=simple
+User=%APP_USER%
+WorkingDirectory=%REPO_ROOT%
+# Loads NODE_ENV, PORT, CORS_ORIGIN, ENQUIRY_STORE, ENQUIRY_DB_PATH, etc.
+EnvironmentFile=%REPO_ROOT%/server/.env
+ExecStart=/usr/bin/npm run start --workspace server
+Restart=always
+RestartSec=3
+# Give the SQLite file a stable, writable home even if .env is minimal.
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
