@@ -18,4 +18,5 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Lifelong Learning', href: '/lifelong-learning' },
   { label: 'Industry', href: '/industry' },
   { label: 'About', href: '/about' },
+  { label: 'Dashboard', href: '/dashboard' },
 ];
