@@ -15,17 +15,22 @@ touch data directly.
 - **MCP SDK pinned to `@modelcontextprotocol/sdk@1.30.1`** (exact version, v1 line)
   for mature client compatibility.
 - **MCP capability set excludes `navigate_to_course`** (browser-only, Spec 09 D2).
-  Six tools are exposed: `find_courses`, `get_course_details`, `compare_courses`,
-  `prepare_enquiry`, `validate_enquiry`, `submit_enquiry`.
+  Seven tools are exposed: `find_courses`, `get_course_details`, `compare_courses`,
+  `prepare_enquiry`, `validate_enquiry`, `list_enquiries`, `submit_enquiry`.
+- **Two transports (Spec 17), selected by `MCP_TRANSPORT`.** `stdio` (default,
+  local subprocess) and `http` (network-connectable Streamable HTTP for remote
+  testing). Both share the same `buildServer()`, tools, and guardrails — the HTTP
+  host is purely additive.
 
 ## Layout
 
 ```
 mcp-server/src/
-├── index.ts                     # process entrypoint (stdio transport + lifecycle)
+├── index.ts                     # process entrypoint: picks transport + lifecycle
 ├── server.ts                    # buildServer(): McpServer + adapter + tools
-├── config/env.ts                # Zod-validated env (transport, log level)
-├── tools/register-tools.ts      # advertises the 6 tools; routes to the adapter
+├── config/env.ts                # Zod-validated env (transport, http host/port, allow-lists)
+├── http/http-host.ts            # Streamable HTTP host (Node built-in http; Spec 17)
+├── tools/register-tools.ts      # advertises the 7 tools; routes to the adapter
 └── adapters/
     ├── capability-adapter.ts    # maps tools → reused backend services (Option B)
     ├── schemas.ts               # reuses server enquiry schema (no third copy)
@@ -52,12 +57,44 @@ mcp-server/src/
 ```bash
 npm run dev --workspace mcp-server     # tsx (stdio)
 npm run build --workspace mcp-server   # tsc → dist/
-npm run start --workspace mcp-server   # node dist/index.js
+npm run start --workspace mcp-server   # node dist/mcp-server/src/index.js
 ```
 
 Configure an MCP client to launch the built server over stdio. To actually allow
 `submit_enquiry`, wire a `HumanApproval` implementation (e.g. MCP elicitation) in
 `buildServer` — otherwise writes are refused by design.
+
+### HTTP transport (Spec 17)
+
+Expose the tools over the network (for remote testing, e.g. on Lightsail behind
+Nginx/TLS):
+
+```bash
+MCP_TRANSPORT=http \
+MCP_HTTP_HOST=127.0.0.1 \
+MCP_HTTP_PORT=4100 \
+MCP_ALLOWED_HOSTS=your-domain.example \
+MCP_ALLOWED_ORIGINS=https://your-domain.example \
+  npm run start --workspace mcp-server
+
+curl http://127.0.0.1:4100/healthz     # {"ok":true}
+```
+
+Environment knobs (all Zod-validated in `config/env.ts`):
+
+| Var | Default | Purpose |
+| --- | ------- | ------- |
+| `MCP_TRANSPORT` | `stdio` | `stdio` or `http`. |
+| `MCP_HTTP_HOST` | `127.0.0.1` | Bind host — keep on loopback behind a proxy. |
+| `MCP_HTTP_PORT` | `4100` | Listen port. |
+| `MCP_ALLOWED_HOSTS` | `` | Comma-separated Host allow-list. Non-empty ⇒ DNS-rebinding protection on. |
+| `MCP_ALLOWED_ORIGINS` | `` | Comma-separated Origin allow-list. Non-empty ⇒ DNS-rebinding protection on. |
+
+Endpoints: `POST/GET/DELETE /mcp` (Streamable HTTP; stateful sessions keyed by the
+`mcp-session-id` header) and `GET /healthz` (`{"ok":true}`). Uses Node's built-in
+`http` — **no new dependency**. `submit_enquiry` is **fail-closed over HTTP too**:
+remote writes are refused until a human-approval channel is wired. Deployment
+recipe and remote-connect steps are in `deploy/README.md`.
 
 ## Notes
 
@@ -71,6 +108,10 @@ Configure an MCP client to launch the built server over stdio. To actually allow
 
 ## Testing
 
-`npm run test --workspace mcp-server` — deterministic unit tests with fake
-services: READ shaping, fail-closed approval, duplicate blocking, PII-free audit,
-sanitised errors, and that navigation is excluded from the tool set.
+`npm run test --workspace mcp-server` — deterministic tests: adapter unit tests
+with fake services (READ shaping, fail-closed approval, duplicate blocking,
+PII-free audit, sanitised errors, navigation excluded); a config test
+(transport default + allow-list parsing); and an **HTTP transport integration
+test** that boots the real host on an ephemeral loopback port and drives it with
+the SDK client (initialize → seven tools, a READ over the wire, `submit_enquiry`
+refused fail-closed, `GET /healthz`).

@@ -1,0 +1,23 @@
+[Unit]
+Description=EduAgent Connect — MCP server (Streamable HTTP transport, Spec 17)
+After=network.target
+
+[Service]
+Type=simple
+User=%APP_USER%
+WorkingDirectory=%REPO_ROOT%
+# Loads MCP_TRANSPORT, MCP_HTTP_HOST/PORT, MCP_ALLOWED_HOSTS/ORIGINS, etc.
+# See deploy/mcp.env.example.
+EnvironmentFile=%REPO_ROOT%/mcp-server/.env
+ExecStart=/usr/bin/npm run start --workspace mcp-server
+Restart=always
+RestartSec=3
+Environment=NODE_ENV=production
+# Fail closed even if the EnvironmentFile is minimal: default to the network
+# transport bound to loopback (Nginx terminates TLS and proxies /mcp).
+Environment=MCP_TRANSPORT=http
+Environment=MCP_HTTP_HOST=127.0.0.1
+Environment=MCP_HTTP_PORT=4100
+
+[Install]
+WantedBy=multi-user.target
