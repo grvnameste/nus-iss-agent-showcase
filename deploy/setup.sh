@@ -59,9 +59,9 @@ install_system_packages() {
   log "Installing system packages (build tooling for better-sqlite3, nginx, certbot)"
   export DEBIAN_FRONTEND=noninteractive
   apt-get update -y
-  # build-essential + python3: required to compile better-sqlite3's native addon.
+  # build-essential + python3 + python3-dev: required to compile better-sqlite3's native addon.
   apt-get install -y --no-install-recommends \
-    ca-certificates curl git build-essential python3 \
+    ca-certificates curl git build-essential python3 python3-dev \
     nginx certbot python3-certbot-nginx
   ok "System packages present"
 }
@@ -99,6 +99,10 @@ build_app() {
     warn "No package-lock.json found; falling back to npm install"
     run_as "npm install"
   fi
+  # Recompile better-sqlite3's native addon for this machine's Node version/arch.
+  # Must run after npm ci so node_modules exists, and before the app build so the
+  # addon is present when the server starts.
+  run_as "npm rebuild better-sqlite3 --build-from-source"
   run_as "npm run build"                       # server + client
   run_as "npm run build --workspace mcp-server" || warn "mcp-server build skipped/failed (optional)"
   ok "Build complete"

@@ -159,8 +159,10 @@ Certbot rewrites the vhost for TLS and sets up auto-renewal.
 ## Why the build tooling?
 
 `better-sqlite3` (the enquiry store, Spec 16) ships a **native addon** that is
-compiled on install, so the box needs `build-essential` + `python3`. `setup.sh`
-installs these before `npm ci`.
+compiled on install, so the box needs `build-essential`, `python3`, and
+`python3-dev` (the headers node-gyp needs). `setup.sh` installs all three before
+`npm ci`, then runs `npm rebuild better-sqlite3 --build-from-source` to compile
+the addon for the exact Node version and architecture on the instance.
 
 ## Persistence
 
