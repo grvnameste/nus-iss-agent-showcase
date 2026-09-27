@@ -38,37 +38,123 @@ Use that host everywhere a domain is expected below (`server_name`, `CORS_ORIGIN
 | `server.env.example` | Server env template (copied to `server/.env` if absent). |
 | `mcp.env.example` | MCP server env template (copied to `mcp-server/.env` if absent). |
 
-## Quick start (on the instance)
+## Full walkthrough (DuckDNS + Lightsail, end to end)
+
+This runs **client + server + MCP HTTP** on one instance behind Nginx/TLS, so end
+users can test **WebMCP** at `https://eduagent.duckdns.org` and **MCP** at
+`https://eduagent.duckdns.org/mcp`. Replace `eduagent.duckdns.org` with your own
+DuckDNS host (if `eduagent` is taken, use a variant), and `<STATIC_IP>` with your
+instance's static IP.
+
+### Step 1 — Create the Lightsail instance
+
+1. Lightsail console → **Create instance** → Linux/Unix → **Ubuntu 24.04 LTS**.
+2. Plan: **4 GB / 2 vCPU** (the `next build` needs the RAM; 2 GB can OOM).
+3. Create it, then **Networking → Create static IP** and attach it. Note it as
+   `<STATIC_IP>`.
+4. **Networking → IPv4 Firewall**: open **HTTP (80)** and **HTTPS (443)**. Leave
+   3000 / 4000 / 4100 closed — Nginx fronts them on loopback.
+
+### Step 2 — Register the DuckDNS subdomain
+
+1. Sign in at **https://www.duckdns.org** (GitHub/Google — free).
+2. Type `eduagent` in the **sub domain** box → **add domain** → you own
+   `eduagent.duckdns.org` (subdomains are lowercase).
+3. In that row set **current ip** to `<STATIC_IP>` → **update ip** / save.
+4. From your laptop, confirm it resolves before running certbot:
+
+   ```bash
+   dig +short eduagent.duckdns.org      # → <STATIC_IP>  (may take a couple of minutes)
+   ```
+
+> Static Lightsail IP → you set the DuckDNS IP **once**; no updater cron needed.
+
+### Step 3 — SSH in and get the code
 
 ```bash
-# 1. Get the code
 git clone <your-repo-url> ~/eduagent && cd ~/eduagent
-
-# 2. One-shot setup (installs system deps + Node, builds the app)
-sudo bash deploy/setup.sh --app-user "$USER"
-
-# 3. Configure the backend env (durable DB path + your host)
-#    HOST below = your DuckDNS host, e.g. eduagent.duckdns.org
-nano server/.env
-#   NODE_ENV=production
-#   CORS_ORIGIN=https://eduagent.duckdns.org
-#   ENQUIRY_STORE=sqlite
-#   ENQUIRY_DB_PATH=/home/ubuntu/eduagent/server/data/enquiries.db
-
-# 4. Install + start the services (client :3000, server :4000)
-sudo bash deploy/install-services.sh --app-user "$USER"
-
-# 5. Reverse proxy + TLS
-sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/eduagent
-sudo nano /etc/nginx/sites-available/eduagent          # set server_name to your DuckDNS host
-sudo ln -s /etc/nginx/sites-available/eduagent /etc/nginx/sites-enabled/
-sudo nginx -t && sudo systemctl reload nginx
-sudo certbot --nginx -d eduagent.duckdns.org           # Let's Encrypt TLS (DuckDNS host)
-
-# 6. Verify
-curl http://127.0.0.1:4000/api/health                  # {"status":"ok"}
-#   then open https://eduagent.duckdns.org  and  /dashboard
 ```
+
+### Step 4 — One-shot provisioning
+
+```bash
+sudo bash deploy/setup.sh --app-user "$USER"
+```
+
+Installs build tooling (for `better-sqlite3`), Node 20, Nginx, Certbot; runs
+`npm ci` + builds all three workspaces; creates the durable data dir; and seeds
+`server/.env` and `mcp-server/.env` from the examples.
+
+### Step 5 — Configure the two env files
+
+```bash
+nano server/.env
+```
+
+```
+NODE_ENV=production
+CORS_ORIGIN=https://eduagent.duckdns.org
+ENQUIRY_STORE=sqlite
+ENQUIRY_DB_PATH=/home/ubuntu/eduagent/server/data/enquiries.db
+```
+
+(If your Linux user isn't `ubuntu`, adjust the DB path to
+`/home/<user>/eduagent/server/data/enquiries.db`.)
+
+```bash
+nano mcp-server/.env
+```
+
+```
+MCP_TRANSPORT=http
+MCP_HTTP_HOST=127.0.0.1
+MCP_HTTP_PORT=4100
+MCP_ALLOWED_HOSTS=eduagent.duckdns.org
+MCP_ALLOWED_ORIGINS=https://eduagent.duckdns.org
+```
+
+The allow-list **must** match the host clients connect through, or the MCP
+DNS-rebinding check rejects the request.
+
+### Step 6 — Install the services (including MCP)
+
+```bash
+sudo bash deploy/install-services.sh --app-user "$USER" --with-mcp
+```
+
+`--with-mcp` adds the MCP HTTP unit alongside client + server. Local check:
+
+```bash
+curl http://127.0.0.1:4000/api/health     # {"status":"ok"}
+curl http://127.0.0.1:4100/healthz         # {"ok":true}
+```
+
+### Step 7 — Nginx + TLS
+
+```bash
+sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/eduagent
+sudo nano /etc/nginx/sites-available/eduagent   # server_name eduagent.duckdns.org; (already set)
+sudo ln -s /etc/nginx/sites-available/eduagent /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default     # stop the default vhost shadowing yours
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d eduagent.duckdns.org    # choose redirect-to-HTTPS when asked
+```
+
+Certbot rewrites the vhost for TLS and sets up auto-renewal.
+
+### Step 8 — Verify end to end
+
+- **WebMCP**: open `https://eduagent.duckdns.org` and `.../dashboard`.
+- **MCP over the network** (from any machine):
+
+  ```bash
+  npx @modelcontextprotocol/inspector
+  ```
+
+  Transport **Streamable HTTP**, URL `https://eduagent.duckdns.org/mcp` →
+  **Connect** → **List Tools** (expect 7) → call `find_courses`. Calling
+  `submit_enquiry` returns an error result — intended fail-closed behaviour (no
+  remote write-approval channel is wired).
 
 ## Why the build tooling?
 
@@ -102,25 +188,10 @@ dashboard/read API are unmasked and unauthenticated (demo).
 `submit_enquiry` is **fail-closed on both transports** (refuses to write without
 a wired human-approval channel). See `mcp-server/README.md`.
 
-### Expose the MCP HTTP transport (optional)
-
-```bash
-# 1. Env (created by setup.sh from mcp.env.example if absent)
-nano mcp-server/.env
-#   MCP_TRANSPORT=http
-#   MCP_HTTP_HOST=127.0.0.1
-#   MCP_HTTP_PORT=4100
-#   MCP_ALLOWED_HOSTS=eduagent.duckdns.org        # enables DNS-rebinding protection
-#   MCP_ALLOWED_ORIGINS=https://eduagent.duckdns.org
-#   (must match the DuckDNS host clients connect through)
-
-# 2. Install + start the MCP unit alongside client/server
-sudo bash deploy/install-services.sh --app-user "$USER" --with-mcp
-
-# 3. The Nginx example already proxies /mcp → :4100 (SSE, no buffering).
-#    Reload after copying it, then verify locally:
-curl http://127.0.0.1:4100/healthz              # {"ok":true}
-```
+The HTTP transport is wired by the walkthrough above (Steps 5–7: `mcp-server/.env`,
+`install-services.sh --with-mcp`, and the Nginx `/mcp` proxy). If you skipped it and
+want to add it later, set `mcp-server/.env`, re-run
+`install-services.sh --with-mcp`, reload Nginx, then `curl http://127.0.0.1:4100/healthz`.
 
 ### Connect a remote MCP client
 
@@ -149,11 +220,13 @@ To redeploy code:
 ```bash
 cd ~/eduagent && git pull
 sudo bash deploy/setup.sh --app-user "$USER"     # reinstall deps + rebuild
-sudo systemctl restart eduagent-server eduagent-client
+sudo systemctl restart eduagent-server eduagent-client eduagent-mcp
 ```
+
+(Drop `eduagent-mcp` from the restart if you did not install with `--with-mcp`.)
 
 ## Sizing
 
 Lightsail **4 GB / 2 vCPU** is the safe floor (the `next build` step is
-memory-hungry; 2 GB can OOM). Firewall: expose only **80/443**; keep 3000/4000
-internal.
+memory-hungry; 2 GB can OOM). Firewall: expose only **80/443**; keep 3000 / 4000 /
+4100 internal (Nginx fronts them on loopback).
