@@ -160,7 +160,12 @@ works over stdio (not web-exposed).
   `ap-southeast-1`), **4 GB / 2 vCPU** (comfortable for build + three Node
   processes; 2 GB is tight during `next build`).
 - Attach a **static IP**; open **80/443** in the Lightsail firewall (keep
-  3000/4000 internal). Point a domain at the static IP for TLS.
+  3000/4000/4100 internal).
+- **TLS hostname.** A custom domain pointed at the static IP is ideal. **No
+  domain?** Use a free **nip.io** host derived from the static IP (dots → dashes),
+  e.g. `13.250.1.2` → `13-250-1-2.nip.io`; certbot issues for it and clients reach
+  `https://13-250-1-2.nip.io` (+ `/mcp`). Use that host for `server_name`,
+  `CORS_ORIGIN`, `MCP_ALLOWED_HOSTS`/`MCP_ALLOWED_ORIGINS`, and `certbot -d`.
 - Install **Node 20 LTS** (via `nvm`) — matches `engines`.
 
 **Deploy**

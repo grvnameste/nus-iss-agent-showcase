@@ -73,8 +73,8 @@ Nginx/TLS):
 MCP_TRANSPORT=http \
 MCP_HTTP_HOST=127.0.0.1 \
 MCP_HTTP_PORT=4100 \
-MCP_ALLOWED_HOSTS=your-domain.example \
-MCP_ALLOWED_ORIGINS=https://your-domain.example \
+MCP_ALLOWED_HOSTS=<dashed-ip>.nip.io \
+MCP_ALLOWED_ORIGINS=https://<dashed-ip>.nip.io \
   npm run start --workspace mcp-server
 
 curl http://127.0.0.1:4100/healthz     # {"ok":true}

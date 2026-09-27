@@ -1,19 +1,22 @@
 # EduAgent Connect — Nginx reverse proxy (single instance).
 #
-# Serves the Next.js client (:3000) and Express API (:4000) on one origin, so the
-# browser hits one domain and there is no CORS. Copy to
-# /etc/nginx/sites-available/eduagent, set your domain, enable it, test, reload,
-# then run certbot for TLS (see deploy/README.md).
+# Serves the Next.js client (:3000), Express API (:4000), and the MCP HTTP
+# endpoint (:4100) on one origin, so the browser hits one host and there is no
+# CORS. Copy to /etc/nginx/sites-available/eduagent, set your host, enable it,
+# test, reload, then run certbot for TLS (see deploy/README.md).
+#
+# No custom domain? Use a free nip.io host built from your Lightsail STATIC IP
+# (replace dots with dashes): IP 13.250.1.2  ->  13-250-1-2.nip.io
 #
 #   sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/eduagent
 #   sudo ln -s /etc/nginx/sites-available/eduagent /etc/nginx/sites-enabled/
 #   sudo nginx -t && sudo systemctl reload nginx
-#   sudo certbot --nginx -d your-domain.example
+#   sudo certbot --nginx -d 13-250-1-2.nip.io      # ← your nip.io host
 
 server {
     listen 80;
     listen [::]:80;
-    server_name your-domain.example;   # ← set your domain (certbot rewrites for TLS)
+    server_name <dashed-ip>.nip.io;   # ← your nip.io host, e.g. 13-250-1-2.nip.io (certbot rewrites for TLS)
 
     # Agent turns can carry large request bodies; keep the proxy from rejecting
     # them (a common cause of 413s behind proxies/WAFs).
@@ -31,7 +34,7 @@ server {
     }
 
     # MCP server — Streamable HTTP transport (Spec 17). Remote MCP clients
-    # (e.g. MCP Inspector) connect to https://your-domain.example/mcp.
+    # (e.g. MCP Inspector) connect to https://<host>/mcp (your nip.io host).
     # SSE streams must not be buffered, and turns can run long, so buffering is
     # off and read timeouts are generous.
     location /mcp {
