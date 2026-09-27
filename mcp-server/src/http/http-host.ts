@@ -1,254 +1,246 @@
 /**
- * Network-connectable Streamable HTTP host for the MCP server (Spec 17).
+ * Network-connectable HTTP host for MCP server (Spec 17 §2).
  *
- * Adds a network transport alongside stdio so remote end users can exercise the
- * MCP tools over HTTP (behind Nginx/TLS on Lightsail). This host is purely
- * additive: it reuses `buildServer()`, the same tools, and the same guardrails.
- * Writes remain **fail-closed** — `buildServer()` defaults to a denying approver,
- * so `submit_enquiry` is refused over HTTP exactly as it is over stdio until an
- * approval channel (e.g. MCP elicitation) is wired by a future spec.
- *
- * Design notes:
- * - Uses Node's built-in `http` module — no new npm dependency in `mcp-server`.
- * - Stateful sessions: each `initialize` mints a session id (crypto UUID) and a
- *   dedicated `McpServer` + `StreamableHTTPServerTransport`; later requests are
- *   routed by the `mcp-session-id` header per the SDK's standard pattern.
- * - DNS-rebinding protection is enabled when Host/Origin allow-lists are set.
- * - Diagnostics go to stderr as PII-free JSON so they never carry learner data.
+ * Mounts the SDK's `StreamableHTTPServerTransport` on a Node built-in `http`
+ * server. Provides MCP endpoint routes (`POST/GET/DELETE /mcp`) plus health
+ * check (`GET /healthz`), DNS-rebinding protection via allow-lists, session
+ * handling per SDK stateful pattern, and clean shutdown on SIGINT/SIGTERM.
+ * 
+ * Uses no additional npm dependencies (Node built-in `http` only).
  */
+import { createServer, type IncomingMessage, type ServerResponse, type Server } from 'node:http';
 import { randomUUID } from 'node:crypto';
-import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import type { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import { buildServer, connect, type BuildServerOptions } from '../server.js';
-
-/** A live MCP session: its dedicated server + transport pair. */
-interface Session {
-  readonly transport: StreamableHTTPServerTransport;
-  readonly server: ReturnType<typeof buildServer>;
-}
+import type { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+import { buildServer, connect } from '../server.js';
+import { env, parseList } from '../config/env.js';
 
 export interface HttpHostOptions {
-  readonly host: string;
-  readonly port: number;
-  /** Host allow-list for DNS-rebinding protection. Empty disables the check. */
+  /** Host to bind (default: env.MCP_HTTP_HOST). */
+  readonly host?: string;
+  /** Port to listen on (default: env.MCP_HTTP_PORT). */
+  readonly port?: number;
+  /** Allowed Host header values for DNS-rebinding protection. */
   readonly allowedHosts?: readonly string[];
-  /** Origin allow-list for DNS-rebinding protection. Empty disables the check. */
+  /** Allowed Origin header values for DNS-rebinding protection. */
   readonly allowedOrigins?: readonly string[];
-  /** Options forwarded to `buildServer` (approval/audit/duplicate guard). */
-  readonly serverOptions?: BuildServerOptions;
-  /** Structured stderr logger; defaults to writing PII-free JSON lines. */
-  readonly log?: (event: Record<string, unknown>) => void;
+  /** Custom MCP server instance (default: buildServer() with fail-closed writes). */
+  readonly server?: McpServer;
 }
 
 export interface HttpHostHandle {
-  /** The port actually bound (useful when `port` is 0 for tests). */
-  readonly port: number;
-  /** Stop accepting connections and tear down all live sessions. */
+  /** Gracefully close the HTTP server and MCP transport. */
   close(): Promise<void>;
-}
-
-const MCP_PATH = '/mcp';
-const HEALTH_PATH = '/healthz';
-const SESSION_HEADER = 'mcp-session-id';
-
-function defaultLog(event: Record<string, unknown>): void {
-  process.stderr.write(`${JSON.stringify(event)}\n`);
-}
-
-/** Best-effort read and JSON-parse of a request body. */
-async function readJsonBody(req: IncomingMessage): Promise<unknown> {
-  const chunks: Buffer[] = [];
-  for await (const chunk of req) {
-    chunks.push(chunk as Buffer);
-  }
-  if (chunks.length === 0) {
-    return undefined;
-  }
-  const raw = Buffer.concat(chunks).toString('utf8');
-  if (raw.trim().length === 0) {
-    return undefined;
-  }
-  return JSON.parse(raw) as unknown;
-}
-
-function writeJson(res: ServerResponse, status: number, body: unknown): void {
-  const payload = JSON.stringify(body);
-  res.writeHead(status, { 'Content-Type': 'application/json' });
-  res.end(payload);
-}
-
-/** JSON-RPC error envelope for requests we reject before reaching a transport. */
-function jsonRpcError(res: ServerResponse, status: number, message: string): void {
-  writeJson(res, status, {
-    jsonrpc: '2.0',
-    error: { code: -32000, message },
-    id: null,
-  });
-}
-
-/** True when a parsed JSON-RPC body is an `initialize` request. */
-function isInitializeRequest(body: unknown): boolean {
-  if (Array.isArray(body)) {
-    return body.some(isInitializeRequest);
-  }
-  return (
-    typeof body === 'object' &&
-    body !== null &&
-    (body as { method?: unknown }).method === 'initialize'
-  );
+  /** The bound port (useful when port=0 for ephemeral allocation). */
+  readonly port: number;
 }
 
 /**
- * Start the Streamable HTTP host. Returns a handle whose `close()` stops the
- * listener and disposes every live session.
+ * Start an HTTP host for the MCP server.
+ * 
+ * Routes:
+ * - `POST/GET/DELETE /mcp` → MCP protocol via StreamableHTTPServerTransport
+ * - `GET /healthz` → `200 {"ok": true}`
+ * 
+ * DNS-rebinding protection is enabled when either allowedHosts or allowedOrigins
+ * is non-empty. Requests with invalid Host/Origin headers are rejected with 403.
+ * 
+ * Sessions are managed per SDK patterns with a random UUID generator.
+ * 
+ * @returns Handle with close() method and actual bound port.
  */
-export async function startHttpHost(options: HttpHostOptions): Promise<HttpHostHandle> {
-  const log = options.log ?? defaultLog;
-  const allowedHosts = [...(options.allowedHosts ?? [])];
-  const allowedOrigins = [...(options.allowedOrigins ?? [])];
-  const dnsRebindingProtection = allowedHosts.length > 0 || allowedOrigins.length > 0;
+export async function startHttpHost(options: HttpHostOptions = {}): Promise<HttpHostHandle> {
+  const host = options.host ?? env.MCP_HTTP_HOST;
+  const port = options.port ?? env.MCP_HTTP_PORT;
+  const allowedHosts = options.allowedHosts ?? parseList(env.MCP_ALLOWED_HOSTS);
+  const allowedOrigins = options.allowedOrigins ?? parseList(env.MCP_ALLOWED_ORIGINS);
+  const server = options.server ?? buildServer();
 
-  const sessions = new Map<string, Session>();
+  // DNS-rebinding protection is enabled when either allow-list is non-empty
+  const enableDnsRebindingProtection = allowedHosts.length > 0 || allowedOrigins.length > 0;
 
-  const createSession = async (): Promise<Session> => {
-    const server = buildServer(options.serverOptions ?? {});
-    const transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: () => randomUUID(),
-      enableDnsRebindingProtection: dnsRebindingProtection,
-      ...(allowedHosts.length > 0 ? { allowedHosts } : {}),
-      ...(allowedOrigins.length > 0 ? { allowedOrigins } : {}),
-      onsessioninitialized: (sessionId) => {
-        sessions.set(sessionId, { transport, server });
-        log({ event: 'mcp_http_session_open', sessionId });
-      },
-    });
-
-    // When a session is torn down (DELETE or transport close), forget it.
-    transport.onclose = () => {
-      const id = transport.sessionId;
-      if (id !== undefined && sessions.delete(id)) {
-        log({ event: 'mcp_http_session_close', sessionId: id });
-      }
-    };
-
-    // The SDK's StreamableHTTPServerTransport exposes `onclose`/`onerror` via
-    // always-present accessors typed `(() => void) | undefined`, which does not
-    // satisfy the `Transport` interface's *optional* members under
-    // `exactOptionalPropertyTypes`. This is a known SDK/strict-config quirk, not a
-    // runtime concern — the transport fully implements `Transport`. Narrow, local
-    // cast keeps strictness on everywhere else.
-    await connect(server, transport as unknown as Transport);
-    return { server, transport };
+  // Build transport options conditionally for exactOptionalPropertyTypes compatibility
+  const transportOptions: {
+    sessionIdGenerator: () => string;
+    enableDnsRebindingProtection: boolean;
+    enableJsonResponse: true;
+    allowedHosts?: string[];
+    allowedOrigins?: string[];
+  } = {
+    sessionIdGenerator: () => randomUUID(),
+    enableDnsRebindingProtection,
+    enableJsonResponse: true,
   };
 
-  const handleMcp = async (req: IncomingMessage, res: ServerResponse): Promise<void> => {
-    const sessionId = req.headers[SESSION_HEADER];
-    const existingId = typeof sessionId === 'string' ? sessionId : undefined;
+  if (allowedHosts.length > 0) {
+    transportOptions.allowedHosts = [...allowedHosts];
+  }
+  if (allowedOrigins.length > 0) {
+    transportOptions.allowedOrigins = [...allowedOrigins];
+  }
 
-    if (req.method === 'POST') {
-      const body = await readJsonBody(req);
+  const transport = new StreamableHTTPServerTransport(transportOptions);
 
-      if (existingId !== undefined) {
-        const session = sessions.get(existingId);
-        if (session === undefined) {
-          jsonRpcError(res, 404, 'Unknown or expired MCP session.');
-          return;
-        }
-        await session.transport.handleRequest(req, res, body);
-        return;
-      }
+  // Connect the MCP server to the transport
+  // Note: SDK transport typing quirk with exactOptionalPropertyTypes
+  await connect(server, transport as unknown as Transport);
 
-      // No session id: only an `initialize` request may open one.
-      if (!isInitializeRequest(body)) {
-        jsonRpcError(res, 400, 'Missing MCP session id for non-initialize request.');
-        return;
-      }
+  const httpServer = createServer((req: IncomingMessage, res: ServerResponse) => {
+    const url = req.url;
+    const method = req.method;
 
-      const session = await createSession();
-      await session.transport.handleRequest(req, res, body);
+    // Health check endpoint
+    if (method === 'GET' && url === '/healthz') {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true }));
       return;
     }
 
-    // GET (SSE stream) and DELETE (session teardown) require an existing session.
-    if (req.method === 'GET' || req.method === 'DELETE') {
-      if (existingId === undefined) {
-        jsonRpcError(res, 400, 'Missing MCP session id.');
-        return;
-      }
-      const session = sessions.get(existingId);
-      if (session === undefined) {
-        jsonRpcError(res, 404, 'Unknown or expired MCP session.');
-        return;
-      }
-      await session.transport.handleRequest(req, res);
+    // MCP protocol endpoints
+    if (url === '/mcp' && (method === 'POST' || method === 'GET' || method === 'DELETE')) {
+      handleMcpRequest(req, res, transport);
       return;
     }
 
-    res.writeHead(405, { Allow: 'GET, POST, DELETE' });
-    res.end();
-  };
-
-  const httpServer: Server = createServer((req, res) => {
-    void (async () => {
-      try {
-        const url = req.url ?? '';
-        const path = url.split('?')[0];
-
-        if (path === HEALTH_PATH && req.method === 'GET') {
-          writeJson(res, 200, { ok: true });
-          return;
-        }
-
-        if (path === MCP_PATH) {
-          await handleMcp(req, res);
-          return;
-        }
-
-        jsonRpcError(res, 404, 'Not found.');
-      } catch (error: unknown) {
-        const message = error instanceof Error ? error.message : String(error);
-        log({ event: 'mcp_http_request_error', message });
-        if (!res.headersSent) {
-          jsonRpcError(res, 500, 'Internal server error.');
-        } else {
-          res.end();
-        }
-      }
-    })();
+    // 404 for all other routes
+    res.writeHead(404, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: 'Not Found' }));
   });
 
+  // Start the server
   await new Promise<void>((resolve, reject) => {
-    const onError = (err: Error): void => reject(err);
-    httpServer.once('error', onError);
-    httpServer.listen(options.port, options.host, () => {
-      httpServer.removeListener('error', onError);
-      resolve();
+    httpServer.listen(port, host, (err?: Error) => {
+      if (err) {
+        reject(err);
+      } else {
+        const address = httpServer.address();
+        const boundPort = typeof address === 'object' && address ? address.port : port;
+        console.error(`MCP HTTP server listening on ${host}:${boundPort}`);
+        resolve();
+      }
     });
   });
+
+  // Set up graceful shutdown
+  const cleanup = setupGracefulShutdown(httpServer, transport);
 
   const address = httpServer.address();
-  const boundPort = typeof address === 'object' && address !== null ? address.port : options.port;
-
-  log({
-    event: 'mcp_http_listening',
-    host: options.host,
-    port: boundPort,
-    dnsRebindingProtection,
-  });
+  const actualPort = typeof address === 'object' && address ? address.port : port;
 
   return {
-    port: boundPort,
-    close: async (): Promise<void> => {
-      // Dispose every live session, then stop the listener.
-      const closings = [...sessions.values()].map((session) =>
-        session.transport.close().catch(() => undefined),
-      );
-      await Promise.all(closings);
-      sessions.clear();
+    port: actualPort,
+    async close(): Promise<void> {
+      cleanup();
       await new Promise<void>((resolve, reject) => {
-        httpServer.close((err) => (err ? reject(err) : resolve()));
+        httpServer.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
       });
+      await transport.close();
     },
+  };
+}
+
+/**
+ * Handle MCP protocol requests by delegating to the StreamableHTTPServerTransport.
+ */
+async function handleMcpRequest(
+  req: IncomingMessage,
+  res: ServerResponse,
+  transport: StreamableHTTPServerTransport,
+): Promise<void> {
+  try {
+    // Parse request body for POST requests
+    let parsedBody: unknown = undefined;
+    if (req.method === 'POST') {
+      parsedBody = await parseRequestBody(req);
+    }
+
+    // Delegate to the SDK transport
+    await transport.handleRequest(req, res, parsedBody);
+  } catch (error) {
+    console.error('Error handling MCP request:', error);
+    if (!res.headersSent) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Internal Server Error' }));
+    }
+  }
+}
+
+/**
+ * Parse JSON request body from IncomingMessage.
+ */
+function parseRequestBody(req: IncomingMessage): Promise<unknown> {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.setEncoding('utf8');
+    
+    req.on('data', (chunk: string) => {
+      body += chunk;
+    });
+    
+    req.on('end', () => {
+      try {
+        if (body.trim() === '') {
+          resolve(undefined);
+        } else {
+          resolve(JSON.parse(body));
+        }
+      } catch (error) {
+        reject(new Error(`Invalid JSON: ${error instanceof Error ? error.message : 'Unknown error'}`));
+      }
+    });
+    
+    req.on('error', reject);
+  });
+}
+
+/**
+ * Set up graceful shutdown handlers for SIGINT and SIGTERM.
+ */
+function setupGracefulShutdown(
+  httpServer: Server,
+  transport: StreamableHTTPServerTransport,
+): () => void {
+  let isShuttingDown = false;
+  
+  const shutdown = async (signal: string) => {
+    if (isShuttingDown) return;
+    isShuttingDown = true;
+    
+    console.error(`Received ${signal}, shutting down gracefully...`);
+    
+    try {
+      // Close HTTP server (stops accepting new connections)
+      await new Promise<void>((resolve, reject) => {
+        httpServer.close((err) => {
+          if (err) reject(err);
+          else resolve();
+        });
+      });
+      
+      // Close MCP transport
+      await transport.close();
+      
+      console.error('MCP HTTP server shut down gracefully');
+      process.exit(0);
+    } catch (error) {
+      console.error('Error during graceful shutdown:', error);
+      process.exit(1);
+    }
+  };
+
+  const sigintHandler = () => shutdown('SIGINT');
+  const sigtermHandler = () => shutdown('SIGTERM');
+  
+  process.on('SIGINT', sigintHandler);
+  process.on('SIGTERM', sigtermHandler);
+  
+  // Return cleanup function to remove listeners
+  return () => {
+    process.removeListener('SIGINT', sigintHandler);
+    process.removeListener('SIGTERM', sigtermHandler);
   };
 }

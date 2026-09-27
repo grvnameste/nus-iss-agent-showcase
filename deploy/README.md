@@ -3,8 +3,7 @@
 Provision a fresh **Ubuntu** Lightsail instance to run EduAgent Connect
 (Next.js `client` + Express `server`, with the `mcp-server` available over stdio
 and, optionally, over a network **Streamable HTTP** transport — Spec 17).
-See the repo-root `DEPLOYMENT.md` for the broader hosting model; this folder is the
-runnable scripting for a single instance.
+Complete hosting documentation is provided in this file.
 
 ## No custom domain? Use a free DuckDNS subdomain
 

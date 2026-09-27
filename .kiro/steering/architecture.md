@@ -77,18 +77,17 @@ Agent / UI → WebMCP capability → CapabilityTransport (adapter)
 
 ## Deployment
 
-- Target platform: **Vercel**.
-- This is a **monorepo**, so the Vercel project's **Root Directory must be set to
-  `client`** — Vercel builds only the Next.js app, not the whole repo. Building
-  the repo root (which contains the Express `server`) as a single Next project is
-  the wrong shape and will fail.
-- `client` deploys as a Next.js app. `server` is an Express API and is **not** a
-  Next app; it deploys as a **separate service** (or serverless functions as a
-  later spec defines), never bundled into the client build. A future `mcp-server`
-  workspace likewise deploys as its own service.
-- `NEXT_PUBLIC_API_BASE_URL` (set in the Vercel `client` project) points the
+- Target platform: **AWS Lightsail**.
+- This is a **monorepo** with three deployable services: `client` (Next.js), 
+  `server` (Express API), and `mcp-server` (MCP tools). All run on a single
+  instance behind Nginx reverse proxy.
+- Services are managed via systemd units that can be installed via 
+  `deploy/install-services.sh`.
+- The MCP server can run over stdio (local) or HTTP (network) transport, with
+  HTTP mode enabling remote agent access over the internet.
+- `NEXT_PUBLIC_API_BASE_URL` (set in production) points the
   client at the deployed backend.
-- See `DEPLOYMENT.md` (repo root) for the concrete monorepo setup.
+- See `deploy/README.md` for the complete Lightsail deployment setup.
 
 ## Constraints
 

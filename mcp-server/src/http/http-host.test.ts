@@ -38,7 +38,6 @@ beforeEach(async () => {
     host: '127.0.0.1',
     port: 0,
     // No allow-lists → DNS-rebinding protection disabled (safe for loopback test).
-    log: () => undefined,
   });
   baseUrl = `http://127.0.0.1:${host.port}/mcp`;
 
