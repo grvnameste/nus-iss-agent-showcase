@@ -127,6 +127,17 @@ prepare_env() {
   else
     warn "deploy/server.env.example missing; create server/.env manually"
   fi
+
+  # MCP server env (Spec 17) — only needed if you expose the MCP HTTP transport.
+  local mcp_env="$REPO_ROOT/mcp-server/.env"
+  local mcp_example="$REPO_ROOT/deploy/mcp.env.example"
+  if [[ -f "$mcp_env" ]]; then
+    ok "mcp-server/.env already exists — left untouched"
+  elif [[ -f "$mcp_example" ]]; then
+    cp "$mcp_example" "$mcp_env"
+    chown "$APP_USER":"$APP_USER" "$mcp_env"
+    warn "Created mcp-server/.env from deploy/mcp.env.example — EDIT IT (MCP_ALLOWED_HOSTS/ORIGINS)"
+  fi
 }
 
 next_steps() {
@@ -139,6 +150,8 @@ Next steps (see deploy/README.md for detail):
   1. Edit server/.env  → NODE_ENV=production, CORS_ORIGIN=https://<domain>,
                           ENQUIRY_DB_PATH=$DATA_DIR/enquiries.db
   2. Install services : sudo bash deploy/install-services.sh --app-user $APP_USER
+                        # add --with-mcp to also expose the MCP HTTP transport
+                        # (edit mcp-server/.env first: MCP_ALLOWED_HOSTS/ORIGINS)
   3. Configure Nginx  : copy deploy/nginx.conf.example → /etc/nginx/sites-available/eduagent
                         set your domain, enable it, then:
                           sudo ln -s /etc/nginx/sites-available/eduagent /etc/nginx/sites-enabled/

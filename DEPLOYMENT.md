@@ -79,25 +79,38 @@ URL, and add the client's Vercel domain to the server's `CORS_ORIGIN`.
 
 ---
 
-## 3. MCP server (`mcp-server/`, Phase 2 — Spec 12)
+## 3. MCP server (`mcp-server/`, Phase 2 — Specs 12 & 17)
 
 The MCP server is a **third, separate service** and is never bundled into the
 `client` Vercel build. As implemented (Spec 12, Option B) it **reuses the backend
 services in-process** by importing them directly from `server/src`, so it needs no
-API base URL — only a transport (stdio) and log level via its validated env.
+API base URL. It speaks two transports (Spec 17), selected by `MCP_TRANSPORT`:
 
 ```bash
 npm run build --workspace mcp-server
-npm run start --workspace mcp-server   # node dist/mcp-server/src/index.js (stdio)
+npm run start --workspace mcp-server   # MCP_TRANSPORT=stdio (default), launched by a client
+
+# Network transport (Streamable HTTP) for remote testing:
+MCP_TRANSPORT=http MCP_HTTP_PORT=4100 \
+  npm run start --workspace mcp-server # POST/GET/DELETE /mcp + GET /healthz
 ```
 
 > Build note (Option B): because the MCP server imports the backend services from
 > `server/src`, `tsc` roots the output across both trees, so the compiled entry is
 > `dist/mcp-server/src/index.js` (the `start` script points there).
 
-MCP clients launch it over stdio. `submit_enquiry` is **fail-closed**: it refuses
-to write unless a human-approval channel is wired. See `mcp-server/README.md` and
-`.kiro/specs/12-mcp-server/`.
+- **stdio** — local MCP clients launch it as a subprocess (no port).
+- **http** — a network-connectable Streamable HTTP endpoint (Node built-in `http`,
+  no new dependency), bound to loopback behind Nginx/TLS so remote clients can
+  test the tools. On Lightsail: `deploy/install-services.sh --with-mcp`, Nginx
+  proxies `/mcp` → `:4100`, and remote clients connect to
+  `https://<domain>/mcp`. DNS-rebinding protection turns on when
+  `MCP_ALLOWED_HOSTS`/`MCP_ALLOWED_ORIGINS` are set. There is no auth in front of
+  `/mcp` (demo); keep it TLS-only over synthetic data.
+
+`submit_enquiry` is **fail-closed on both transports**: it refuses to write unless
+a human-approval channel is wired. See `mcp-server/README.md`, `deploy/README.md`,
+and `.kiro/specs/12-mcp-server/` + `.kiro/specs/17-mcp-http-transport/`.
 
 ---
 
@@ -130,8 +143,10 @@ export ENQUIRY_DB_PATH=/home/ubuntu/eduagent/data/enquiries.db
 ## 5. Hosting on AWS Lightsail (single instance)
 
 For a self-hosted demo, one Lightsail instance can run **client + server** behind
-Nginx, with the MCP server available over stdio (not web-exposed). This keeps
-everything same-origin (no CORS) and needs one TLS certificate.
+Nginx, optionally with the **MCP server over HTTP** (Nginx proxies `/mcp` → `:4100`)
+so remote clients can test the tools. This keeps everything same-origin (no CORS)
+and needs one TLS certificate. If you don't expose MCP over the network, it still
+works over stdio (not web-exposed).
 
 > **One-shot setup:** `deploy/setup.sh` provisions a fresh Ubuntu instance in a
 > single run (system deps + build tooling for `better-sqlite3`, Node 20, Nginx,
@@ -154,7 +169,7 @@ everything same-origin (no CORS) and needs one TLS certificate.
 git clone <repo> && cd nus-iss-agent-showcase
 npm ci
 npm run build                         # server + client
-npm run build --workspace mcp-server  # optional (stdio, launched by MCP clients)
+npm run build --workspace mcp-server  # stdio (local clients) or HTTP (remote, MCP_TRANSPORT=http)
 
 # server/.env (not committed):
 #   NODE_ENV=production
@@ -202,5 +217,6 @@ curl http://localhost:4000/api/health   # → { "status": "ok" }
 - [ ] `server` deployed as its own service; `CORS_ORIGIN` includes the client domain; `NODE_ENV=production`.
 - [ ] `ENQUIRY_DB_PATH` points at a **durable** path so enquiries persist across restarts; DB file gitignored.
 - [ ] Do **not** deploy the repo root as a single Next project.
-- [ ] (Phase 2) `mcp-server` deployed/launched as its own service (stdio), not part of the client build.
+- [ ] (Phase 2) `mcp-server` deployed/launched as its own service (stdio, or HTTP via `--with-mcp` + Nginx `/mcp`), not part of the client build.
+- [ ] (MCP HTTP, Spec 17) `MCP_ALLOWED_HOSTS`/`MCP_ALLOWED_ORIGINS` set (DNS-rebinding protection on); `/mcp` served TLS-only; `submit_enquiry` stays fail-closed.
 - [ ] (Lightsail) static IP + firewall 80/443 only; Nginx TLS + `/api` proxy; systemd services; raise proxy body-size limit.

@@ -30,6 +30,24 @@ server {
         proxy_read_timeout 60s;
     }
 
+    # MCP server — Streamable HTTP transport (Spec 17). Remote MCP clients
+    # (e.g. MCP Inspector) connect to https://your-domain.example/mcp.
+    # SSE streams must not be buffered, and turns can run long, so buffering is
+    # off and read timeouts are generous.
+    location /mcp {
+        proxy_pass http://127.0.0.1:4100;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Server-Sent Events: stream to the client, don't buffer.
+        proxy_buffering off;
+        proxy_cache off;
+        proxy_read_timeout 3600s;
+        proxy_send_timeout 3600s;
+    }
+
     # Next.js client (everything else).
     location / {
         proxy_pass http://127.0.0.1:3000;
