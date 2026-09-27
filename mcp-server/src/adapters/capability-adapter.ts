@@ -16,6 +16,7 @@ import {
 } from '../../../server/src/services/enquiry-service.js';
 import { enquiryInputSchema } from '../../../server/src/domain/enquiry.js';
 import type { Course } from '../../../server/src/domain/course.js';
+import type { Enquiry } from '../../../server/src/domain/enquiry.js';
 import { z } from 'zod';
 import {
   findCoursesInput,
@@ -161,6 +162,14 @@ export function createAdapter(deps: AdapterDeps) {
     };
   }
 
+  async function listEnquiries(): Promise<{ data: Enquiry[] }> {
+    // READ (no approval): delegate to the reused service, which returns
+    // enquiries newest first (Spec 16 FR-1603). No business logic here.
+    const rows = await enquiries.list();
+    deps.audit.record({ capability: 'list_enquiries', kind: 'READ', outcome: 'success' });
+    return { data: [...rows] };
+  }
+
   async function submitEnquiry(input: unknown): Promise<{
     reference: string;
     courseId: string;
@@ -249,6 +258,7 @@ export function createAdapter(deps: AdapterDeps) {
     compareCourses,
     prepareEnquiry,
     validateEnquiry,
+    listEnquiries,
     submitEnquiry,
   };
 }

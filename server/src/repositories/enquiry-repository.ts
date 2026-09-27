@@ -1,4 +1,6 @@
 import type { Enquiry } from '../domain/enquiry.js';
+import { env } from '../config/env.js';
+import { SqliteEnquiryRepository } from './sqlite-enquiry-repository.js';
 
 /**
  * Enquiry data-access contract (design §6, FR-513, NFR-508).
@@ -14,6 +16,8 @@ export interface EnquiryRepository {
   create(enquiry: Enquiry): Promise<Enquiry>;
   /** Return the enquiry with the given reference, or null if none matches. */
   findByReference(reference: string): Promise<Enquiry | null>;
+  /** Return all stored enquiries, newest first (Spec 16, FR-1602). */
+  list(): Promise<readonly Enquiry[]>;
 }
 
 /**
@@ -36,7 +40,29 @@ export class InMemoryEnquiryRepository implements EnquiryRepository {
     const match = this.enquiries.find((enquiry) => enquiry.reference === reference);
     return Promise.resolve(match ? { ...match } : null);
   }
+
+  /** All stored enquiries, newest first (insertion order reversed). */
+  list(): Promise<readonly Enquiry[]> {
+    return Promise.resolve([...this.enquiries].reverse().map((e) => ({ ...e })));
+  }
+}
+
+/**
+ * Build the default repository from validated configuration (Spec 16).
+ *
+ * `sqlite` persists to `ENQUIRY_DB_PATH` (durable across restarts — the default
+ * for the running app and the Lightsail demo); `memory` keeps the original
+ * in-process store (tests inject their own instance regardless).
+ */
+function createEnquiryRepository(): EnquiryRepository {
+  // Under test, default to the in-memory store so suites are deterministic and
+  // never touch disk. `ENQUIRY_STORE` has a default of 'sqlite', so a test that
+  // genuinely wants the file path must set NODE_ENV!=='test'.
+  if (env.NODE_ENV === 'test' || env.ENQUIRY_STORE === 'memory') {
+    return new InMemoryEnquiryRepository();
+  }
+  return new SqliteEnquiryRepository(env.ENQUIRY_DB_PATH);
 }
 
 /** Shared default repository instance for the running application. */
-export const enquiryRepository: EnquiryRepository = new InMemoryEnquiryRepository();
+export const enquiryRepository: EnquiryRepository = createEnquiryRepository();

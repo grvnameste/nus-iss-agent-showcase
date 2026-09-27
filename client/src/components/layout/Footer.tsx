@@ -24,6 +24,7 @@ const FOOTER_LINKS: readonly FooterLink[] = [
   { label: 'Lifelong Learning', href: '/lifelong-learning' },
   { label: 'Course Catalogue', href: CATALOGUE_HREF },
   { label: 'Compare Courses', href: COMPARISON_HREF },
+  { label: 'Dashboard', href: '/dashboard' },
   { label: 'About', href: '/about' },
 ];
 

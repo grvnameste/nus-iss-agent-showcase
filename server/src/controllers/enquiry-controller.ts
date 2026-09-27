@@ -38,6 +38,26 @@ export class EnquiryController {
       throw error;
     }
   };
+
+  /**
+   * GET /api/enquiries — list stored enquiries, newest first (Spec 16, FR-1602).
+   * A READ; returns the shared `{ data }` envelope. Demo affordance: full records
+   * (synthetic data, no masking, no auth).
+   */
+  list = async (_req: Request, res: Response): Promise<void> => {
+    const data = await this.service.list();
+    res.status(200).json({ data });
+  };
+
+  /** GET /api/enquiries/:reference — one stored enquiry or a sanitised 404. */
+  getByReference = async (req: Request, res: Response): Promise<void> => {
+    const { reference } = req.params as { reference: string };
+    const enquiry = await this.service.getByReference(reference);
+    if (enquiry === null) {
+      throw ApiError.notFound(`No enquiry found with reference "${reference}"`);
+    }
+    res.status(200).json({ data: enquiry });
+  };
 }
 
 export const enquiryController = new EnquiryController();

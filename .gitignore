@@ -11,6 +11,12 @@ server/dist/
 dist/
 build/
 
+# SQLite database files (Spec 16 — enquiry persistence; local/instance only)
+server/data/
+*.db
+*.db-shm
+*.db-wal
+
 # Environment
 .env
 .env*.local

@@ -1,7 +1,7 @@
 /**
  * MCP tool registration (Spec 12 §5, FR-1201).
  *
- * Advertises the six MCP-applicable capabilities as MCP tools and routes each to
+ * Advertises the seven MCP-applicable capabilities as MCP tools and routes each to
  * the capability adapter (which reuses the backend services and is the
  * AUTHORITATIVE validator). `navigate_to_course` is intentionally NOT registered —
  * it is browser-only (Spec 09 D2).
@@ -117,6 +117,13 @@ export function registerTools(server: McpServer, adapter: CapabilityAdapter): vo
       run: (input) => adapter.validateEnquiry(input),
     },
     {
+      name: 'list_enquiries',
+      description: 'List submitted enquiries (newest first).',
+      // READ with no inputs — an empty shape advertises a parameterless tool.
+      inputSchema: {},
+      run: () => adapter.listEnquiries(),
+    },
+    {
       name: 'submit_enquiry',
       description:
         'Submit an enquiry for a course. Requires explicit human approval before submission.',
@@ -160,5 +167,6 @@ export const MCP_TOOL_NAMES = [
   'compare_courses',
   'prepare_enquiry',
   'validate_enquiry',
+  'list_enquiries',
   'submit_enquiry',
 ] as const;

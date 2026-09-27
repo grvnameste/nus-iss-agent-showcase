@@ -49,7 +49,11 @@ function fakeCourses(overrides: Record<string, unknown> = {}): any {
   };
 }
 
-function fakeEnquiries(): { submit: (input: unknown) => Promise<unknown>; calls: number } {
+function fakeEnquiries(rows: readonly unknown[] = []): {
+  submit: (input: unknown) => Promise<unknown>;
+  list: () => Promise<readonly unknown[]>;
+  calls: number;
+} {
   const obj = {
     calls: 0,
     submit: async (input: unknown) => {
@@ -62,6 +66,8 @@ function fakeEnquiries(): { submit: (input: unknown) => Promise<unknown>; calls:
         createdAt: '2027-01-01T00:00:00.000Z',
       };
     },
+    // Service returns newest-first; the adapter must delegate without re-sorting.
+    list: async () => rows,
   };
   return obj;
 }
@@ -75,10 +81,10 @@ const goodEnquiry = {
   message: 'I would like to know more about this course please.',
 };
 
-function build(opts: { approve?: boolean } = {}) {
+function build(opts: { approve?: boolean; enquiryRows?: readonly unknown[] } = {}) {
   const audit = new InMemoryAuditSink();
   const duplicateGuard = new DuplicateSubmissionGuard();
-  const enquiries = fakeEnquiries();
+  const enquiries = fakeEnquiries(opts.enquiryRows);
   const adapter = createAdapter({
     approval:
       opts.approve === undefined
@@ -127,6 +133,48 @@ describe('READ tools', () => {
     const out = await adapter.validateEnquiry({ email: 'bad' });
     expect(out.valid).toBe(false);
     expect(out.fieldErrors).toBeDefined();
+  });
+
+  it('list_enquiries returns the service rows and audits a PII-free READ success', async () => {
+    const rows = [
+      {
+        id: 'e2',
+        reference: 'ENQ-2027-000002',
+        name: 'Grace Hopper',
+        email: 'grace@example.com',
+        courseId: 'c1',
+        courseTitle: 'Cloud Foundations',
+        enquiryType: 'general',
+        message: 'Newest enquiry.',
+        status: 'received',
+        createdAt: '2027-01-02T00:00:00.000Z',
+      },
+      {
+        id: 'e1',
+        reference: 'ENQ-2027-000001',
+        name: 'Ada Lovelace',
+        email: 'ada@example.com',
+        courseId: 'c1',
+        courseTitle: 'Cloud Foundations',
+        enquiryType: 'general',
+        message: 'Older enquiry.',
+        status: 'received',
+        createdAt: '2027-01-01T00:00:00.000Z',
+      },
+    ];
+    const { adapter, audit } = build({ enquiryRows: rows });
+    const out = await adapter.listEnquiries();
+    // Delegates verbatim (service already returns newest-first).
+    expect(out.data).toEqual(rows);
+    const entry = audit.list().at(-1);
+    expect(entry).toMatchObject({
+      capability: 'list_enquiries',
+      kind: 'READ',
+      outcome: 'success',
+    });
+    // Audit must never carry enquirer PII.
+    expect(JSON.stringify(entry)).not.toContain('grace@example.com');
+    expect(JSON.stringify(entry)).not.toContain('Grace Hopper');
   });
 });
 

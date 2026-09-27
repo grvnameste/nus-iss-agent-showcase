@@ -185,10 +185,58 @@ describe('POST /api/enquiries', () => {
     expect(res.body.error.message).not.toMatch(/stack|Error:|at \w+/i);
   });
 
-  it('does not accept GET on the enquiries collection (write-only endpoint)', async () => {
+});
+
+describe('GET /api/enquiries (Spec 16, FR-1602)', () => {
+  // The default enquiry repository is a module-level singleton shared across the
+  // suite, so these tests assert against the newest entries / deltas rather than
+  // absolute emptiness (other tests in this file also submit enquiries).
+
+  it('returns a 200 list envelope', async () => {
     const res = await request(app).get('/api/enquiries');
 
+    expect(res.status).toBe(200);
+    expect(Array.isArray(res.body.data)).toBe(true);
+  });
+
+  it('lists submitted enquiries newest first, with full fields (demo, no masking)', async () => {
+    const courseId = await firstListableCourseId();
+    const first = await request(app).post('/api/enquiries').send(validBody({ courseId }));
+    const second = await request(app)
+      .post('/api/enquiries')
+      .send(validBody({ courseId, message: 'A different question about the course.' }));
+
+    const res = await request(app).get('/api/enquiries');
+
+    expect(res.status).toBe(200);
+    // The two just-submitted enquiries are the two newest, in reverse order.
+    expect(res.body.data[0].reference).toBe(second.body.data.reference);
+    expect(res.body.data[1].reference).toBe(first.body.data.reference);
+    // Full record is returned for the dashboard (synthetic data, no masking).
+    expect(res.body.data[0]).toMatchObject({
+      name: 'Alex Tan',
+      email: 'alex.tan@example.com',
+      status: 'received',
+    });
+  });
+
+  it('retrieves one enquiry by reference', async () => {
+    const courseId = await firstListableCourseId();
+    const created = await request(app).post('/api/enquiries').send(validBody({ courseId }));
+    const reference = created.body.data.reference as string;
+
+    const res = await request(app).get(`/api/enquiries/${reference}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data.reference).toBe(reference);
+  });
+
+  it('returns a sanitised 404 for an unknown reference', async () => {
+    const res = await request(app).get('/api/enquiries/ENQ-2099-000000');
+
     expect(res.status).toBe(404);
+    expect(res.body.error.code).toBe('NOT_FOUND');
+    expect(res.body.error.message).not.toMatch(/stack|Error:|at \w+/i);
   });
 });
 

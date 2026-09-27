@@ -64,4 +64,17 @@ describe('InMemoryEnquiryRepository', () => {
     const found = await repository.findByReference('ENQ-2026-000001');
     expect(found?.name).toBe('Alex Tan');
   });
+
+  it('lists stored enquiries newest first (Spec 16)', async () => {
+    const repository = new InMemoryEnquiryRepository();
+    await repository.create(makeEnquiry({ id: 'enq-1', reference: 'ENQ-2026-000001' }));
+    await repository.create(makeEnquiry({ id: 'enq-2', reference: 'ENQ-2026-000002' }));
+
+    const all = await repository.list();
+
+    expect(all.map((e) => e.reference)).toEqual([
+      'ENQ-2026-000002',
+      'ENQ-2026-000001',
+    ]);
+  });
 });

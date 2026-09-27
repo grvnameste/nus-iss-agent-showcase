@@ -20,3 +20,9 @@ enquiriesRouter.post(
   validate('body', enquiryInputSchema),
   asyncHandler(enquiryController.create),
 );
+
+// GET /api/enquiries — list stored enquiries, newest first (Spec 16, READ).
+enquiriesRouter.get('/', asyncHandler(enquiryController.list));
+
+// GET /api/enquiries/:reference — retrieve one stored enquiry (Spec 16, READ).
+enquiriesRouter.get('/:reference', asyncHandler(enquiryController.getByReference));

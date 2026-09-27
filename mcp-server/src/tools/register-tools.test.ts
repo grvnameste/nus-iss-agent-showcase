@@ -3,11 +3,11 @@ import { registerTools, MCP_TOOL_NAMES } from './register-tools.js';
 import type { CapabilityAdapter } from '../adapters/capability-adapter.js';
 
 /**
- * Confirms the MCP server advertises exactly the six MCP-applicable tools and
+ * Confirms the MCP server advertises exactly the seven MCP-applicable tools and
  * NOT the browser-only `navigate_to_course` (Spec 09 D2 / Spec 12 FR-1201).
  */
 describe('registerTools', () => {
-  it('registers the six MCP tools and excludes navigation', () => {
+  it('registers the seven MCP tools and excludes navigation', () => {
     const registered: string[] = [];
     // Minimal fake McpServer capturing registerTool names.
     const fakeServer = {
@@ -22,7 +22,8 @@ describe('registerTools', () => {
     registerTools(fakeServer, stubAdapter);
 
     expect(registered.sort()).toEqual([...MCP_TOOL_NAMES].sort());
+    expect(registered).toContain('list_enquiries');
     expect(registered).not.toContain('navigate_to_course');
-    expect(registered).toHaveLength(6);
+    expect(registered).toHaveLength(7);
   });
 });
