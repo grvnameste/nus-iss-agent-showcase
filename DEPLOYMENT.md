@@ -86,8 +86,12 @@ API base URL — only a transport (stdio) and log level via its validated env.
 
 ```bash
 npm run build --workspace mcp-server
-npm run start --workspace mcp-server   # node dist/index.js (stdio)
+npm run start --workspace mcp-server   # node dist/mcp-server/src/index.js (stdio)
 ```
+
+> Build note (Option B): because the MCP server imports the backend services from
+> `server/src`, `tsc` roots the output across both trees, so the compiled entry is
+> `dist/mcp-server/src/index.js` (the `start` script points there).
 
 MCP clients launch it over stdio. `submit_enquiry` is **fail-closed**: it refuses
 to write unless a human-approval channel is wired. See `mcp-server/README.md` and
