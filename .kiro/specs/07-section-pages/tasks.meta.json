@@ -1,0 +1,192 @@
+{
+  "pbtResults": {},
+  "executionHistory": {
+    "1. Spec 07 documentation (this spec)": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264132922
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264142341
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264194795
+      }
+    ],
+    "2. Inspect the reference implementation & primitives": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264132992
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264199016
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264291378
+      }
+    ],
+    "3. Add shared marketing components (only if justified) with tests": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264133025
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264295770
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264407320
+      }
+    ],
+    "4. Implement the Education page + test": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264133073
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264416907
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264547390
+      }
+    ],
+    "5. Implement the Admissions page + test": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264133100
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264551850
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264686258
+      }
+    ],
+    "6. Implement the Industry page + test": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264133131
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264691729
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264813825
+      }
+    ],
+    "7. Implement the About page + test": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264133157
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264819570
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264960004
+      }
+    ],
+    "8. Accessibility & content-consistency pass": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264133188
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264964472
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790265082272
+      }
+    ],
+    "9. Confirm the four routes no longer reference `PagePlaceholder`": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264133231
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790265087334
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790265102558
+      }
+    ],
+    "10. Full verification gates": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264133276
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790265107439
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790265245291
+      }
+    ],
+    "11. Final demo walkthrough": [
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790264133302
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790265251234
+      },
+      {
+        "executionId": "061de8e3-ff8d-4cb4-ad10-0d4545ba73ec",
+        "chatSessionId": "sess_754ed224-8178-4348-87e8-a71da555f606",
+        "timestamp": 1790265269591
+      }
+    ]
+  }
+}
