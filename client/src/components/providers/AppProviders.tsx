@@ -3,6 +3,7 @@
 import type { ReactNode } from 'react';
 import { ComparisonProvider } from '@/components/comparison/comparison-context';
 import { NotificationProvider } from '@/components/notifications/notification-context';
+import { AgentProvider } from '@/agent/webmcp';
 
 /**
  * Integration-owned composition of the cross-feature client providers
@@ -15,11 +16,19 @@ import { NotificationProvider } from '@/components/notifications/notification-co
  * This wrapper contains **no business logic** — it is context composition only.
  * Feature internals (including the comparison provider) are consumed here and
  * never modified (NFR-601).
+ *
+ * The Spec 11 `AgentProvider` mounts the WebMCP capability layer once on the
+ * client. It is purely additive and degrades gracefully: with no WebMCP browser
+ * surface it registers the capabilities for potential in-app use and renders only
+ * an idle confirmation host, leaving every human journey unchanged (FR-1101,
+ * FR-1106).
  */
 export function AppProviders({ children }: { children: ReactNode }): React.JSX.Element {
   return (
     <ComparisonProvider>
-      <NotificationProvider>{children}</NotificationProvider>
+      <NotificationProvider>
+        <AgentProvider>{children}</AgentProvider>
+      </NotificationProvider>
     </ComparisonProvider>
   );
 }
