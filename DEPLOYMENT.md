@@ -71,6 +71,8 @@ Options:
 | `CORS_ORIGIN` | `http://localhost:3000` | Comma-separated allow-list. In production set it to the deployed **client** origin(s). Avoid `*` outside local dev. |
 | `LOG_LEVEL` | `info` | pino level. |
 | `NODE_ENV` | `development` | Set `production` when deployed. |
+| `ENQUIRY_STORE` | `sqlite` | Enquiry store (Spec 16). `sqlite` persists to disk; `memory` is ephemeral. Tests always use in-memory. |
+| `ENQUIRY_DB_PATH` | `./data/enquiries.db` | SQLite file path (Spec 16). Point at a **durable** path on the instance so enquiries survive restarts. |
 
 **Wiring:** set the client's `NEXT_PUBLIC_API_BASE_URL` to this service's public
 URL, and add the client's Vercel domain to the server's `CORS_ORIGIN`.
@@ -99,7 +101,83 @@ to write unless a human-approval channel is wired. See `mcp-server/README.md` an
 
 ---
 
-## 4. Local development (reference)
+## 4. Enquiry persistence — SQLite (Spec 16)
+
+Submitted enquiries are stored in **SQLite** (a single file on the instance disk —
+the cheapest durable option; no managed database). The same stored data is read
+back by `GET /api/enquiries`, the `list_enquiries` MCP tool, and the `/dashboard`
+page.
+
+- Set **`ENQUIRY_DB_PATH`** to a **durable** path on the host (not a temp dir), so
+  enquiries survive server restarts. Ensure the process user can create/write that
+  directory (the server creates parent dirs automatically).
+- Leave **`ENQUIRY_STORE=sqlite`** (the default) in production. `memory` is
+  ephemeral; tests use in-memory automatically.
+- The DB file is **gitignored** (`server/data/`, `*.db`) — it is instance-local
+  state, never committed.
+- **Caveat (demo scope):** the DB is tied to the **single instance** (no
+  replication/backup). Snapshots/backups are out of scope for the demo. Also, the
+  dashboard and read API expose **synthetic** enquiry data **unmasked** and with
+  **no auth** — acceptable only because all data is synthetic.
+
+```bash
+# On the instance, e.g.
+export ENQUIRY_DB_PATH=/home/ubuntu/eduagent/data/enquiries.db
+```
+
+---
+
+## 5. Hosting on AWS Lightsail (single instance)
+
+For a self-hosted demo, one Lightsail instance can run **client + server** behind
+Nginx, with the MCP server available over stdio (not web-exposed). This keeps
+everything same-origin (no CORS) and needs one TLS certificate.
+
+**Provision (ref: reuse the ShowMeYourAgent Lightsail flow)**
+
+- Instance: **Ubuntu 24.04 LTS**, region to match any Bedrock use (e.g.
+  `ap-southeast-1`), **4 GB / 2 vCPU** (comfortable for build + three Node
+  processes; 2 GB is tight during `next build`).
+- Attach a **static IP**; open **80/443** in the Lightsail firewall (keep
+  3000/4000 internal). Point a domain at the static IP for TLS.
+- Install **Node 20 LTS** (via `nvm`) — matches `engines`.
+
+**Deploy**
+
+```bash
+git clone <repo> && cd nus-iss-agent-showcase
+npm ci
+npm run build                         # server + client
+npm run build --workspace mcp-server  # optional (stdio, launched by MCP clients)
+
+# server/.env (not committed):
+#   NODE_ENV=production
+#   CORS_ORIGIN=https://<your-domain>            # or omit if same-origin via Nginx
+#   ENQUIRY_STORE=sqlite
+#   ENQUIRY_DB_PATH=/home/ubuntu/eduagent/data/enquiries.db
+# client env:
+#   NEXT_PUBLIC_API_BASE_URL=""                  # same-origin (Nginx routes /api) or the domain
+```
+
+Run **`client` (:3000)** and **`server` (:4000)** as **systemd services**
+(auto-restart, survive reboot). Front them with **Nginx**:
+
+- TLS via Let's Encrypt (Certbot).
+- `location /api/ → http://127.0.0.1:4000` ; `location / → http://127.0.0.1:3000`.
+- Raise `client_max_body_size` / proxy buffers so large agent request bodies are
+  not rejected (a known gotcha behind proxies/WAFs).
+
+**Persistence:** point `ENQUIRY_DB_PATH` at a durable path (e.g.
+`/home/ubuntu/eduagent/data/`) — enquiries then survive restarts. Back up that
+file if the demo needs to retain data across instance replacement.
+
+**Bedrock (optional):** if wiring a live LLM planner, call Bedrock **server-side
+only** (scoped IAM `bedrock:InvokeModel`, credentials in the server env — never in
+`NEXT_PUBLIC_*`). See the hosting plan for details.
+
+---
+
+## 6. Local development (reference)
 
 From the repository root:
 
@@ -111,10 +189,12 @@ curl http://localhost:4000/api/health   # → { "status": "ok" }
 
 ---
 
-## 5. Checklist
+## 7. Checklist
 
-- [ ] Vercel `client` project **Root Directory = `client`**.
-- [ ] `NEXT_PUBLIC_API_BASE_URL` set on the client project to the backend's public URL.
+- [ ] Vercel `client` project **Root Directory = `client`** (or client behind Nginx on Lightsail).
+- [ ] `NEXT_PUBLIC_API_BASE_URL` set (or empty for same-origin via Nginx).
 - [ ] `server` deployed as its own service; `CORS_ORIGIN` includes the client domain; `NODE_ENV=production`.
+- [ ] `ENQUIRY_DB_PATH` points at a **durable** path so enquiries persist across restarts; DB file gitignored.
 - [ ] Do **not** deploy the repo root as a single Next project.
-- [ ] (Phase 2) `mcp-server` deployed as its own service, not part of the client build.
+- [ ] (Phase 2) `mcp-server` deployed/launched as its own service (stdio), not part of the client build.
+- [ ] (Lightsail) static IP + firewall 80/443 only; Nginx TLS + `/api` proxy; systemd services; raise proxy body-size limit.
