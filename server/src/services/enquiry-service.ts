@@ -24,6 +24,15 @@ export interface CreateEnquiryResult {
 
 export interface EnquiryService {
   submit(input: EnquiryInput): Promise<CreateEnquiryResult>;
+  /**
+   * List stored enquiries, newest first (Spec 16, FR-1602). Returns the full
+   * stored records — including personal fields — for the demo dashboard. This is
+   * a deliberate demo affordance (synthetic data, no masking); the WRITE result
+   * (`CreateEnquiryResult`) still omits PII.
+   */
+  list(): Promise<readonly Enquiry[]>;
+  /** Fetch one stored enquiry by reference, or null (Spec 16, FR-1602). */
+  getByReference(reference: string): Promise<Enquiry | null>;
 }
 
 /**
@@ -134,6 +143,16 @@ export class DefaultEnquiryService implements EnquiryService {
       status: stored.status,
       createdAt: stored.createdAt,
     };
+  }
+
+  /** List stored enquiries, newest first — delegates to the repository (FR-1602). */
+  list(): Promise<readonly Enquiry[]> {
+    return this.repository.list();
+  }
+
+  /** Fetch one stored enquiry by reference (FR-1602). */
+  getByReference(reference: string): Promise<Enquiry | null> {
+    return this.repository.findByReference(reference);
   }
 }
 

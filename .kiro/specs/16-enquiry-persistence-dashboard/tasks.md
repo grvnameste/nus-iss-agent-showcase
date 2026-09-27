@@ -19,13 +19,13 @@ Task 1 is the authoring of this spec (done alongside requirements/design). Tasks
 
 ## Tasks
 
-- [ ] 1. Author the spec (this document set)
+- [x] 1. Author the spec (this document set)
   - `requirements.md`, `design.md`, `tasks.md` under
     `.kiro/specs/16-enquiry-persistence-dashboard/`.
   - **Acceptance:** the three documents exist and are internally consistent.
   - _Requirements: all (spec authoring)_
 
-- [ ] 2. Foundation A — SQLite repository + interface `list` + config/migration
+- [x] 2. Foundation A — SQLite repository + interface `list` + config/migration
   - Add `list()` to `EnquiryRepository`; implement in the in-memory repo; add
     `SqliteEnquiryRepository` (`better-sqlite3`, pinned) with idempotent
     `CREATE TABLE IF NOT EXISTS` + row↔domain mapping; select SQLite as the default
@@ -37,7 +37,7 @@ Task 1 is the authoring of this spec (done alongside requirements/design). Tasks
     temp/`:memory:` DB; in-memory repo `list` too.
   - **Acceptance:** AC-1601, AC-1605. _Requirements: FR-1601, FR-1605_
 
-- [ ] 3. Foundation B — read service + `GET /api/enquiries` endpoint
+- [x] 3. Foundation B — read service + `GET /api/enquiries` endpoint
   - Add `enquiryService.listEnquiries()` / `getEnquiry(reference)` delegating to the
     repository; add `enquiryController.list` / `getByReference`; register
     `GET /api/enquiries` (+ `:reference`) on the existing enquiries router (thin,
@@ -48,7 +48,7 @@ Task 1 is the authoring of this spec (done alongside requirements/design). Tasks
   - **Acceptance:** AC-1602. _Requirements: FR-1602_
   - _Depends on: Task 2._
 
-- [ ] 4. MCP tool `list_enquiries` (parallel)
+- [x] 4. MCP tool `list_enquiries` (parallel)
   - Adapter method `listEnquiries()` reusing `enquiryService.listEnquiries()`
     (Option B); register `list_enquiries` (READ, no approval) in
     `register-tools.ts`; update `MCP_TOOL_NAMES` (now 7) + tests.
@@ -59,7 +59,7 @@ Task 1 is the authoring of this spec (done alongside requirements/design). Tasks
   - **Acceptance:** AC-1603. _Requirements: FR-1603_
   - _Depends on: Task 3. Parallel with Task 5._
 
-- [ ] 5. Dashboard page (parallel)
+- [x] 5. Dashboard page (parallel)
   - `enquiriesApi.list()` in `client/src/lib/enquiries/api.ts`; a `/dashboard`
     route listing enquiries (all fields, no masking) with loading/empty/error
     states, reusing the design system + a11y; a discoverable link.
@@ -69,7 +69,7 @@ Task 1 is the authoring of this spec (done alongside requirements/design). Tasks
   - **Acceptance:** AC-1604. _Requirements: FR-1604_
   - _Depends on: Task 3. Parallel with Task 4._
 
-- [ ] 6. Integrate + full verification gate
+- [x] 6. Integrate + full verification gate
   - `typecheck` + `lint` + `vitest --run` across `client`/`server`/`mcp-server`;
     `build`; boot + `GET /api/health` ok; confirm durability (submit → restart →
     still listed); confirm existing suites unchanged (no regression to WRITE

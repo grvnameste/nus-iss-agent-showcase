@@ -1,5 +1,11 @@
 import { resolveApiBaseUrl } from '@/lib/webmcp';
-import type { EnquiryConfirmationResult, EnquiryInput, EnquiryResponse } from './types';
+import type {
+  EnquiryConfirmationResult,
+  EnquiryInput,
+  EnquiryListResponse,
+  EnquiryResponse,
+  StoredEnquiry,
+} from './types';
 
 /**
  * Enquiry API client (Spec 05, design §10, TASK-509).
@@ -62,6 +68,8 @@ function toFieldErrors(details: ApiErrorIssue[] | undefined): Record<string, str
 const NETWORK_MESSAGE =
   'Unable to reach the enquiry service. Please check your connection and try again.';
 const GENERIC_MESSAGE = 'We could not submit your enquiry. Please try again.';
+const LIST_NETWORK_MESSAGE = 'Unable to reach the enquiry service.';
+const LIST_GENERIC_MESSAGE = 'The enquiry service returned an error.';
 
 export const enquiriesApi = {
   /** POST /api/enquiries — submit one enquiry (FR-511). */
@@ -96,6 +104,36 @@ export const enquiriesApi = {
     }
 
     const body = (await response.json()) as EnquiryResponse;
+    return body.data;
+  },
+
+  /**
+   * GET /api/enquiries — list stored enquiries, newest first (FR-1604).
+   *
+   * Read-only: like the course client, it holds no business logic — ordering,
+   * filtering, and shaping are the backend's job. It only fetches, unwraps the
+   * `{ data }` envelope, and translates any failure into a sanitised message
+   * (SR-503/SR-506) so the dashboard never leaks internals.
+   */
+  async list(signal?: AbortSignal): Promise<StoredEnquiry[]> {
+    const base = resolveApiBaseUrl().replace(/\/+$/, '');
+
+    let response: Response;
+    try {
+      response = await fetch(`${base}/api/enquiries`, {
+        headers: { Accept: 'application/json' },
+        ...(signal ? { signal } : {}),
+      });
+    } catch {
+      // Underlying reason (DNS, refused connection, CORS) is an internal detail.
+      throw new EnquiryApiError(LIST_NETWORK_MESSAGE);
+    }
+
+    if (!response.ok) {
+      throw new EnquiryApiError(LIST_GENERIC_MESSAGE, response.status);
+    }
+
+    const body = (await response.json()) as EnquiryListResponse;
     return body.data;
   },
 };

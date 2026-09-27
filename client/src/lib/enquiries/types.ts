@@ -58,3 +58,33 @@ export interface EnquiryConfirmationResult {
 export interface EnquiryResponse {
   data: EnquiryConfirmationResult;
 }
+
+/**
+ * A persisted enquiry as returned by `GET /api/enquiries`.
+ *
+ * Unlike {@link EnquiryConfirmationResult}, this carries the full submitted
+ * record — including the personal fields — because the dashboard reviews stored
+ * enquiries. This is safe here only because the data is **synthetic demonstration
+ * data**: no real learner PII is ever stored (see product/security steering), so
+ * the dashboard displays every field without masking.
+ *
+ * Structurally compatible with the server's stored enquiry model; the backend
+ * remains the source of truth.
+ */
+export interface StoredEnquiry {
+  reference: string;
+  courseId: string;
+  courseTitle: string;
+  name: string;
+  email: string;
+  phone?: string;
+  enquiryType: EnquiryType;
+  message: string;
+  status: EnquiryStatus;
+  createdAt: string;
+}
+
+/** Successful payload for `GET /api/enquiries` — newest first. */
+export interface EnquiryListResponse {
+  data: StoredEnquiry[];
+}

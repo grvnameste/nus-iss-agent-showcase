@@ -14,6 +14,16 @@ const envSchema = z.object({
   LOG_LEVEL: z
     .enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'])
     .default('info'),
+  /**
+   * Enquiry store selector (Spec 16). `sqlite` persists to a file on disk;
+   * `memory` keeps the original in-process store (used by tests / ephemeral dev).
+   */
+  ENQUIRY_STORE: z.enum(['sqlite', 'memory']).default('sqlite'),
+  /**
+   * SQLite database file path (Spec 16). Point this at a durable path on the
+   * deployed instance. Ignored when ENQUIRY_STORE=memory.
+   */
+  ENQUIRY_DB_PATH: z.string().default('./data/enquiries.db'),
 });
 
 export type Env = z.infer<typeof envSchema>;
