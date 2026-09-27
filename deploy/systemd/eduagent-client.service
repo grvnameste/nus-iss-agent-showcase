@@ -1,0 +1,19 @@
+[Unit]
+Description=EduAgent Connect — Next.js frontend (client)
+After=network.target
+
+[Service]
+Type=simple
+User=%APP_USER%
+WorkingDirectory=%REPO_ROOT%
+ExecStart=/usr/bin/npm run start --workspace client
+Restart=always
+RestartSec=3
+Environment=NODE_ENV=production
+# The browser calls the backend via this URL. Empty = same-origin (Nginx proxies
+# /api to the server); otherwise set to the public API URL. Set it here or via an
+# EnvironmentFile if you prefer.
+Environment=NEXT_PUBLIC_API_BASE_URL=
+
+[Install]
+WantedBy=multi-user.target

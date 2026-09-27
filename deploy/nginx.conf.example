@@ -1,0 +1,44 @@
+# EduAgent Connect — Nginx reverse proxy (single instance).
+#
+# Serves the Next.js client (:3000) and Express API (:4000) on one origin, so the
+# browser hits one domain and there is no CORS. Copy to
+# /etc/nginx/sites-available/eduagent, set your domain, enable it, test, reload,
+# then run certbot for TLS (see deploy/README.md).
+#
+#   sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/eduagent
+#   sudo ln -s /etc/nginx/sites-available/eduagent /etc/nginx/sites-enabled/
+#   sudo nginx -t && sudo systemctl reload nginx
+#   sudo certbot --nginx -d your-domain.example
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name your-domain.example;   # ← set your domain (certbot rewrites for TLS)
+
+    # Agent turns can carry large request bodies; keep the proxy from rejecting
+    # them (a common cause of 413s behind proxies/WAFs).
+    client_max_body_size 25m;
+
+    # Backend REST API.
+    location /api/ {
+        proxy_pass http://127.0.0.1:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_read_timeout 60s;
+    }
+
+    # Next.js client (everything else).
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Connection        "upgrade";
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

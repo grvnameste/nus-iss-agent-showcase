@@ -133,6 +133,12 @@ For a self-hosted demo, one Lightsail instance can run **client + server** behin
 Nginx, with the MCP server available over stdio (not web-exposed). This keeps
 everything same-origin (no CORS) and needs one TLS certificate.
 
+> **One-shot setup:** `deploy/setup.sh` provisions a fresh Ubuntu instance in a
+> single run (system deps + build tooling for `better-sqlite3`, Node 20, Nginx,
+> Certbot, `npm ci` + build, data dir). Then `deploy/install-services.sh` installs
+> the systemd services and `deploy/nginx.conf.example` is the reverse-proxy vhost.
+> See `deploy/README.md` for the full runbook.
+
 **Provision (ref: reuse the ShowMeYourAgent Lightsail flow)**
 
 - Instance: **Ubuntu 24.04 LTS**, region to match any Bedrock use (e.g.
