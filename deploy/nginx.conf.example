@@ -5,18 +5,19 @@
 # CORS. Copy to /etc/nginx/sites-available/eduagent, set your host, enable it,
 # test, reload, then run certbot for TLS (see deploy/README.md).
 #
-# No custom domain? Use a free nip.io host built from your Lightsail STATIC IP
-# (replace dots with dashes): IP 13.250.1.2  ->  13-250-1-2.nip.io
+# No custom domain? Register a free DuckDNS subdomain (https://www.duckdns.org)
+# pointed at your Lightsail STATIC IP, e.g. eduagent.duckdns.org.
+# (Alternatively, a no-signup nip.io host: <dashed-ip>.nip.io.)
 #
 #   sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/eduagent
 #   sudo ln -s /etc/nginx/sites-available/eduagent /etc/nginx/sites-enabled/
 #   sudo nginx -t && sudo systemctl reload nginx
-#   sudo certbot --nginx -d 13-250-1-2.nip.io      # ← your nip.io host
+#   sudo certbot --nginx -d eduagent.duckdns.org   # ← your DuckDNS host
 
 server {
     listen 80;
     listen [::]:80;
-    server_name <dashed-ip>.nip.io;   # ← your nip.io host, e.g. 13-250-1-2.nip.io (certbot rewrites for TLS)
+    server_name eduagent.duckdns.org;   # ← your DuckDNS host (certbot rewrites for TLS)
 
     # Agent turns can carry large request bodies; keep the proxy from rejecting
     # them (a common cause of 413s behind proxies/WAFs).
@@ -34,7 +35,7 @@ server {
     }
 
     # MCP server — Streamable HTTP transport (Spec 17). Remote MCP clients
-    # (e.g. MCP Inspector) connect to https://<host>/mcp (your nip.io host).
+    # (e.g. MCP Inspector) connect to https://<host>/mcp (your DuckDNS host).
     # SSE streams must not be buffered, and turns can run long, so buffering is
     # off and read timeouts are generous.
     location /mcp {

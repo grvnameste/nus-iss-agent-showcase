@@ -6,17 +6,24 @@ and, optionally, over a network **Streamable HTTP** transport — Spec 17).
 See the repo-root `DEPLOYMENT.md` for the broader hosting model; this folder is the
 runnable scripting for a single instance.
 
-## No custom domain? Use nip.io
+## No custom domain? Use a free DuckDNS subdomain
 
-Let's Encrypt won't issue a certificate for a bare IP, so map a **free** hostname
-to your Lightsail **static IP** with [nip.io](https://nip.io) — no signup:
+Let's Encrypt won't issue a certificate for a bare IP, so give your Lightsail
+**static IP** a free hostname with [DuckDNS](https://www.duckdns.org) (sign in with
+GitHub/Google, no cost):
 
-> Take your static IP, replace the dots with dashes, append `.nip.io`.
-> `13.250.1.2` → **`13-250-1-2.nip.io`** (it resolves straight back to the IP).
+> 1. At duckdns.org, create a subdomain — e.g. **`eduagent`** → `eduagent.duckdns.org`
+>    (subdomains are lowercase; if `eduagent` is taken, use a variant like
+>    `eduagent-demo`).
+> 2. Set its **current ip** to your Lightsail **static IP** and Save.
+> 3. Confirm it resolves: `dig +short eduagent.duckdns.org` → your IP.
 
 Use that host everywhere a domain is expected below (`server_name`, `CORS_ORIGIN`,
 `MCP_ALLOWED_HOSTS`/`MCP_ALLOWED_ORIGINS`, and `certbot -d`). End users then reach
-`https://13-250-1-2.nip.io` (WebMCP) and `https://13-250-1-2.nip.io/mcp` (MCP).
+`https://eduagent.duckdns.org` (WebMCP) and `https://eduagent.duckdns.org/mcp` (MCP).
+
+> No-signup alternative: a nip.io host derived from the IP (dots → dashes),
+> e.g. `13-250-1-2.nip.io`. DuckDNS is preferred here for a stable, named host.
 
 ## Files
 
@@ -41,10 +48,10 @@ git clone <your-repo-url> ~/eduagent && cd ~/eduagent
 sudo bash deploy/setup.sh --app-user "$USER"
 
 # 3. Configure the backend env (durable DB path + your host)
-#    HOST below = your nip.io host, e.g. 13-250-1-2.nip.io
+#    HOST below = your DuckDNS host, e.g. eduagent.duckdns.org
 nano server/.env
 #   NODE_ENV=production
-#   CORS_ORIGIN=https://<dashed-ip>.nip.io
+#   CORS_ORIGIN=https://eduagent.duckdns.org
 #   ENQUIRY_STORE=sqlite
 #   ENQUIRY_DB_PATH=/home/ubuntu/eduagent/server/data/enquiries.db
 
@@ -53,14 +60,14 @@ sudo bash deploy/install-services.sh --app-user "$USER"
 
 # 5. Reverse proxy + TLS
 sudo cp deploy/nginx.conf.example /etc/nginx/sites-available/eduagent
-sudo nano /etc/nginx/sites-available/eduagent          # set server_name to your nip.io host
+sudo nano /etc/nginx/sites-available/eduagent          # set server_name to your DuckDNS host
 sudo ln -s /etc/nginx/sites-available/eduagent /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
-sudo certbot --nginx -d <dashed-ip>.nip.io             # Let's Encrypt TLS (nip.io host)
+sudo certbot --nginx -d eduagent.duckdns.org           # Let's Encrypt TLS (DuckDNS host)
 
 # 6. Verify
 curl http://127.0.0.1:4000/api/health                  # {"status":"ok"}
-#   then open https://<dashed-ip>.nip.io  and  /dashboard
+#   then open https://eduagent.duckdns.org  and  /dashboard
 ```
 
 ## Why the build tooling?
@@ -103,9 +110,9 @@ nano mcp-server/.env
 #   MCP_TRANSPORT=http
 #   MCP_HTTP_HOST=127.0.0.1
 #   MCP_HTTP_PORT=4100
-#   MCP_ALLOWED_HOSTS=<dashed-ip>.nip.io          # enables DNS-rebinding protection
-#   MCP_ALLOWED_ORIGINS=https://<dashed-ip>.nip.io
-#   (must match the nip.io host clients connect through)
+#   MCP_ALLOWED_HOSTS=eduagent.duckdns.org        # enables DNS-rebinding protection
+#   MCP_ALLOWED_ORIGINS=https://eduagent.duckdns.org
+#   (must match the DuckDNS host clients connect through)
 
 # 2. Install + start the MCP unit alongside client/server
 sudo bash deploy/install-services.sh --app-user "$USER" --with-mcp
@@ -120,11 +127,11 @@ curl http://127.0.0.1:4100/healthz              # {"ok":true}
 Point any Streamable-HTTP MCP client at the public endpoint:
 
 ```
-https://<dashed-ip>.nip.io/mcp      # e.g. https://13-250-1-2.nip.io/mcp
+https://eduagent.duckdns.org/mcp
 ```
 
 - **MCP Inspector**: `npx @modelcontextprotocol/inspector`, choose transport
-  **Streamable HTTP**, URL `https://<dashed-ip>.nip.io/mcp`, then
+  **Streamable HTTP**, URL `https://eduagent.duckdns.org/mcp`, then
   Connect → List Tools (seven tools) → call a READ (e.g. `find_courses`).
 - Calling `submit_enquiry` returns an error result (fail-closed) — this is
   expected until a remote human-approval channel (MCP elicitation) is wired.

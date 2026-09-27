@@ -162,10 +162,11 @@ works over stdio (not web-exposed).
 - Attach a **static IP**; open **80/443** in the Lightsail firewall (keep
   3000/4000/4100 internal).
 - **TLS hostname.** A custom domain pointed at the static IP is ideal. **No
-  domain?** Use a free **nip.io** host derived from the static IP (dots → dashes),
-  e.g. `13.250.1.2` → `13-250-1-2.nip.io`; certbot issues for it and clients reach
-  `https://13-250-1-2.nip.io` (+ `/mcp`). Use that host for `server_name`,
-  `CORS_ORIGIN`, `MCP_ALLOWED_HOSTS`/`MCP_ALLOWED_ORIGINS`, and `certbot -d`.
+  domain?** Register a free **DuckDNS** subdomain (https://www.duckdns.org) and
+  point it at the static IP, e.g. `eduagent.duckdns.org`; certbot issues for it and
+  clients reach `https://eduagent.duckdns.org` (+ `/mcp`). Use that host for
+  `server_name`, `CORS_ORIGIN`, `MCP_ALLOWED_HOSTS`/`MCP_ALLOWED_ORIGINS`, and
+  `certbot -d`. (No-signup alternative: a `<dashed-ip>.nip.io` host.)
 - Install **Node 20 LTS** (via `nvm`) — matches `engines`.
 
 **Deploy**
